@@ -95,11 +95,12 @@
 
   (tt/leader-keys
       "b" '(:ignore t :wk "buffer")
-      "bb" '(switch-to-buffer :wk "Switch buffer")
-      "bk" '(kill-this-buffer :wk "Kill this buffer")
-      "bn" '(next-buffer :wk "Next buffer")
-      "bp" '(previous-buffer :wk "Previous buffer")
-      "br" '(revert-buffer :wk "Reload buffer"))
+      "b b" '(switch-to-buffer :wk "Switch buffer")
+      "b i" '(ibuffer :wk "Ibuffer")
+      "b k" '(kill-this-buffer :wk "Kill this buffer")
+      "b n" '(next-buffer :wk "Next buffer")
+      "b p" '(previous-buffer :wk "Previous buffer")
+      "b r" '(revert-buffer :wk "Reload buffer"))
 
 (tt/leader-keys
   "h" '(:ignore t :wk "Help")
@@ -109,17 +110,18 @@
   "h r r" '(reload-init-file :wk "Reload emacs config"))
 
 (tt/leader-keys
-  "e" '(:ignore t :wk "Evaluate")    
+  "e" '(:ignore t :wk "Eshell/Evaluate")    
   "e b" '(eval-buffer :wk "Evaluate elisp in buffer")
   "e d" '(eval-defun :wk "Evaluate defun containing or after point")
   "e e" '(eval-expression :wk "Evaluate and elisp expression")
   "e l" '(eval-last-sexp :wk "Evaluate elisp expression before point")
-  "e r" '(eval-region :wk "Evaluate elisp in region"))
+  "e r" '(eval-region :wk "Evaluate elisp in region")
+  "e s" '(eshell :wk "Eshell"))
 (tt/leader-keys
   "t" '(:ignore t :wk "Toggle")
   "t l" '(display-line-numbers-mode :wk "Toggle line numbers")
-  "t t" '(visual-line-mode :wk "Toggle truncated lines"))
-  )
+  "t t" '(visual-line-mode :wk "Toggle truncated lines")
+  "t v" '(vterm-toggle :wk "Toggle vterm"))
 (tt/leader-keys
   "w" '(:ignore t :wk "Windows")
   ;; Window splits
@@ -137,7 +139,7 @@
   "w H" '(buf-move-left :wk "Buffer move left")
   "w J" '(buf-move-down :wk "Buffer move down")
   "w K" '(buf-move-up :wk "Buffer move up")
-  "w L" '(buf-move-right :wk "Buffer move right"))
+  "w L" '(buf-move-right :wk "Buffer move right")))
 
 (use-package all-the-icons
   :ensure t
@@ -153,11 +155,12 @@
   "Swap the current buffer and the buffer above the split.
 If there is no split, ie now window above the current one, an
 error is signaled."
-;;  "Switches between the current buffer, and the buffer above the
+;;  "Switches between the cur
+rent buffer, and the buffer above the
 ;;  split, if possible."
   (interactive)
   (let* ((other-win (windmove-find-other-window 'up))
-	 (buf-this-buf (window-buffer (selected-window))))
+         (buf-this-buf (window-buffer (selected-window))))
     (if (null other-win)
         (error "No window above this one")
       ;; swap top with this one
@@ -173,7 +176,7 @@ If there is no split, ie now window under the current one, an
 error is signaled."
   (interactive)
   (let* ((other-win (windmove-find-other-window 'down))
-	 (buf-this-buf (window-buffer (selected-window))))
+         (buf-this-buf (window-buffer (selected-window))))
     (if (or (null other-win) 
             (string-match "^ \\*Minibuf" (buffer-name (window-buffer other-win))))
         (error "No window under this one")
@@ -190,7 +193,7 @@ If there is no split, ie now window on the left of the current
 one, an error is signaled."
   (interactive)
   (let* ((other-win (windmove-find-other-window 'left))
-	 (buf-this-buf (window-buffer (selected-window))))
+         (buf-this-buf (window-buffer (selected-window))))
     (if (null other-win)
         (error "No left split")
       ;; swap top with this one
@@ -206,7 +209,7 @@ If there is no split, ie now window on the right of the current
 one, an error is signaled."
   (interactive)
   (let* ((other-win (windmove-find-other-window 'right))
-	 (buf-this-buf (window-buffer (selected-window))))
+         (buf-this-buf (window-buffer (selected-window))))
     (if (null other-win)
         (error "No right split")
       ;; swap top with this one
@@ -297,6 +300,47 @@ one, an error is signaled."
 (electric-indent-mode -1)
 
 (require 'org-tempo)
+
+(use-package eshell-syntax-highlighting
+  :after esh-mode
+  :config
+  (eshell-syntax-highlighting-global-mode +1))
+
+;; eshell-syntax-highlighting -- adds fish/zsh-like syntax highlighting.
+;; eshell-rc-script -- your profile for eshell; like a bashrc for eshell.
+;; eshell-aliases-file -- sets an aliases file for the eshell.
+  
+(setq eshell-rc-script (concat user-emacs-directory "eshell/profile")
+      eshell-aliases-file (concat user-emacs-directory "eshell/aliases")
+      eshell-history-size 5000
+      eshell-buffer-maximum-lines 5000
+      eshell-hist-ignoredups t
+      eshell-scroll-to-bottom-on-input t
+      eshell-destroy-buffer-when-process-dies t
+      eshell-visual-commands'("bash" "fish" "htop" "ssh" "top" "zsh"))
+
+(use-package vterm
+:config
+(setq shell-file-name "/bin/fish"
+      vterm-max-scrollback 5000))
+
+(use-package vterm-toggle
+  :after vterm
+  :config(setq vterm-toggle-fullscreen-p nil)
+  (setq vterm-toggle-scope 'project)
+  (add-to-list 'display-buffer-alist
+               '((lambda (buffer-or-name _)
+                     (let ((buffer (get-buffer buffer-or-name)))
+                       (with-current-buffer buffer
+                         (or (equal major-mode 'vterm-mode)
+                             (string-prefix-p vterm-buffer-name (buffer-name buffer))))))
+                  (display-buffer-reuse-window display-buffer-at-bottom)
+                  ;;(display-buffer-reuse-window display-buffer-in-direction)
+                  ;;display-buffer-in-direction/direction/dedicated is added in emacs27
+                  ;;(direction . bottom)
+                  ;;(dedicated . t) ;dedicated is supported in emacs27
+                  (reusable-frames . visible)
+                  (window-height . 0.3))))
 
 (defun reload-init-file ()
   (interactive)
