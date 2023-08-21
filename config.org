@@ -10,6 +10,8 @@
   - [[#sourcing-the-scripts][Sourcing the scripts]]
   - [[#general-keybindings][General Keybindings]]
 - [[#evil][EVIL]]
+  - [[#basic][Basic]]
+  - [[#cursor][Cursor]]
 - [[#all-the-icons][ALL THE ICONS]]
 - [[#backup][BACKUP]]
 - [[#company][COMPANY]]
@@ -26,6 +28,8 @@
 - [[#ivy-counsel][IVY (COUNSEL)]]
 - [[#language-support][LANGUAGE SUPPORT]]
 - [[#modeline][MODELINE]]
+  - [[#basic-1][Basic]]
+  - [[#datetime][Datetime]]
 - [[#neotree][NEOTREE]]
 - [[#org-mode][ORG MODE]]
   - [[#enabling-table-of-contents][Enabling Table of Contents]]
@@ -180,13 +184,17 @@
     "w J" '(buf-move-down :wk "Buffer move down")
     "w K" '(buf-move-up :wk "Buffer move up")
     "w L" '(buf-move-right :wk "Buffer move right"))
+  (tt/leader-keys
+    "s" '(:ignore t:wk "Search")
+    "s f" '(swiper :wk "Search on this file")
+   )
 )
 
 #+end_src
 
 
 * EVIL
-
+** Basic
 #+begin_src emacs-lisp
 ;; Expands to: (elpaca evil (use-package evil :demand t))
 (use-package evil
@@ -210,7 +218,11 @@
     (evil-collection-init))
   (use-package evil-tutor)
 #+end_src
-
+** Cursor
+#+begin_src emacs-lisp
+(setq evil-insert-state-cursor '((bar . 2) "orange")
+      evil-normal-state-cursor '(box "orange"))
+#+end_src
 * ALL THE ICONS
 This is an icon set that can be used with dashboard, dired, ibuffer and other Emacs programs.
   
@@ -414,6 +426,7 @@ Let's make GNU Emacs look a little better.
   :bind
   ;; ivy-resume resumes the last Ivy-based completion.
   (("C-c C-r" . ivy-resume)
+   ("C-s" . swiper)
    ("C-x B" . ivy-switch-buffer-other-window))
   :diminish
   :custom
@@ -439,6 +452,18 @@ Let's make GNU Emacs look a little better.
   (ivy-set-display-transformer 'ivy-switch-buffer
                                'ivy-rich-switch-buffer-transformer))
 
+(use-package ivy-posframe
+  :defer t
+  :after (:any ivy helpful)
+  :hook (ivy-mode . ivy-posframe-mode)
+  :init
+  (ivy-posframe-mode 1)
+  :config
+  (setq ivy-fixed-height-minibuffer nil
+        ivy-posframe-border-width   10
+        ivy-posframe-parameters
+        `((min-width  . 90)
+          (min-height . ,ivy-height))))
 #+end_src
 
 * LANGUAGE SUPPORT
@@ -452,7 +477,7 @@ Emacs has built-in programming language modes for Lisp, Scheme, DSSSL, Ada, ASM,
 
 * MODELINE
 The modeline is the bottom status bar that appears in Emacs windows.  While you can create your own custom modeline, why go to the trouble when Doom Emacs already has a nice modeline package available.  For more information on what is available to configure in the Doom modeline, check out: [[https://github.com/seagle0128/doom-modeline][Doom Modeline]]
-
+** Basic
 #+begin_src emacs-lisp
 (use-package doom-modeline
   :ensure t
@@ -465,6 +490,12 @@ The modeline is the bottom status bar that appears in Emacs windows.  While you 
 
 #+end_src
 
+** Datetime
+#+begin_src emacs-lisp
+(require 'time)
+(setq display-time-format "%Y-%m-%d %H:%M")
+(display-time-mode 1) ; display time in modeline
+#+end_src
 * NEOTREE
 Neotree is a file tree viewer.  When you open neotree, it jumps to the current file thanks to neo-smart-open.  The neo-window-fixed-size setting makes the neotree width be adjustable.  NeoTree provides following themes: classic, ascii, arrow, icons, and nerd.  Theme can be configed by setting "two" themes for neo-theme: one for the GUI and one for the terminal.  I like to use 'SPC t' for 'toggle' keybindings, so I have used 'SPC t n' for toggle-neotree.
 
@@ -537,6 +568,9 @@ Org-tempo is not a separate package but a module within org that can be enabled.
 
 #+begin_src emacs-lisp 
 (require 'org-tempo)
+(add-to-list 'org-structure-template-alist '("sh" . "src shell"))
+(add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+(add-to-list 'org-structure-template-alist '("py" . "src python"))
 #+end_src
 
 * PROJECTILE

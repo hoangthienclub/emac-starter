@@ -126,6 +126,10 @@
     "w J" '(buf-move-down :wk "Buffer move down")
     "w K" '(buf-move-up :wk "Buffer move up")
     "w L" '(buf-move-right :wk "Buffer move right"))
+  (tt/leader-keys
+    "s" '(:ignore t:wk "Search")
+    "s f" '(swiper :wk "Search on this file")
+   )
 )
 
 ;; Expands to: (elpaca evil (use-package evil :demand t))
@@ -149,6 +153,9 @@
     (setq evil-collection-mode-list '(dashboard dired ibuffer))
     (evil-collection-init))
   (use-package evil-tutor)
+
+(setq evil-insert-state-cursor '((bar . 2) "orange")
+      evil-normal-state-cursor '(box "orange"))
 
 (use-package all-the-icons
   :ensure t
@@ -289,6 +296,7 @@
   :bind
   ;; ivy-resume resumes the last Ivy-based completion.
   (("C-c C-r" . ivy-resume)
+   ("C-s" . swiper)
    ("C-x B" . ivy-switch-buffer-other-window))
   :diminish
   :custom
@@ -314,6 +322,19 @@
   (ivy-set-display-transformer 'ivy-switch-buffer
                                'ivy-rich-switch-buffer-transformer))
 
+(use-package ivy-posframe
+  :defer t
+  :after (:any ivy helpful)
+  :hook (ivy-mode . ivy-posframe-mode)
+  :init
+  (ivy-posframe-mode 1)
+  :config
+  (setq ivy-fixed-height-minibuffer nil
+        ivy-posframe-border-width   10
+        ivy-posframe-parameters
+        `((min-width  . 90)
+          (min-height . ,ivy-height))))
+
 (use-package haskell-mode)
 (use-package lua-mode)
 
@@ -325,6 +346,10 @@
         doom-modeline-bar-width 5    ;; sets right bar width
         doom-modeline-persp-name t   ;; adds perspective name to modeline
         doom-modeline-persp-icon t)) ;; adds folder icon next to persp name
+
+(require 'time)
+(setq display-time-format "%Y-%m-%d %H:%M")
+(display-time-mode 1) ; display time in modeline
 
 (use-package neotree
   :config
@@ -357,6 +382,9 @@
 (setq org-edit-src-content-indentation 0)
 
 (require 'org-tempo)
+(add-to-list 'org-structure-template-alist '("sh" . "src shell"))
+(add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+(add-to-list 'org-structure-template-alist '("py" . "src python"))
 
 (use-package projectile
   :config
