@@ -456,8 +456,40 @@ one, an error is signaled."
                   (reusable-frames . visible)
                   (window-height . 0.3))))
 
+;;(load-theme 'dtmacs t)
+;;(use-package doom-themes
+;;  :ensure t)
+(use-package autothemer
+  :ensure t)
+
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
-(load-theme 'dtmacs t)
+(use-package doom-themes
+  :config 
+    ;;(load-theme 'doom-dracula t))
+    (load-theme 'catppuccin-macchiato t))
+
+(use-package doom-modeline
+  :custom
+  (doom-modeline-height 35)
+  (doom-modeline-bar-width 8)
+  (doom-modeline-time-icon nil)
+  (doom-modeline-buffer-encoding 'nondefault)
+  (doom-modeline-unicode-fallback t)
+  (doom-modeline-bar-inactive nil)
+  :config
+  ;; FIX Add some padding to the right
+  (doom-modeline-def-modeline 'main
+    '(bar workspace-name window-number modals matches follow buffer-info
+      remote-host buffer-position word-count parrot selection-info)
+    '(objed-state misc-info persp-name battery grip irc mu4e gnus github debug
+      repl lsp minor-modes input-method indent-info buffer-encoding major-mode
+      process vcs checker time "   ")))
+(setq evil-normal-state-tag   (propertize "[Normal]" 'face '((:background "green" :foreground "black")))
+      evil-emacs-state-tag    (propertize "[Emacs]" 'face '((:background "orange" :foreground "black")))
+      evil-insert-state-tag   (propertize "[Insert]" 'face '((:background "red") :foreground "white"))
+      evil-motion-state-tag   (propertize "[Motion]" 'face '((:background "blue") :foreground "white"))
+      evil-visual-state-tag   (propertize "[Visual]" 'face '((:background "yellow" :foreground "black")))
+      evil-operator-state-tag (propertize "[Operator]" 'face '((:background "purple"))))
 
 (use-package which-key
   :init
