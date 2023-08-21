@@ -400,7 +400,10 @@
     (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
       doom-themes-enable-italic t)
 
-    (load-theme 'catppuccin-macchiato t))
+    ;;(load-theme 'catppuccin-macchiato t)
+    (load-theme 'doom-one t)
+    (doom-themes-neotree-config)
+    (doom-themes-org-config))
 
 (use-package doom-modeline
   :custom
