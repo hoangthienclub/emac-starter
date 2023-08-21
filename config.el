@@ -3,21 +3,6 @@
 (require 'elpaca-setup) ;; The Elpaca Package Manager
 (require 'buffer-move) ;; Buffer-move for better window management
 
-;; Expands to: (elpaca evil (use-package evil :demand t))
-(use-package evil
-    :init      ;; tweak evil's configuration before loading it
-    (setq evil-want-integration t) ;; This is optional since it's already set to t by default.
-    (setq evil-want-keybinding nil)
-    (setq evil-vsplit-window-right t)
-    (setq evil-split-window-below t)
-    (evil-mode))
-  (use-package evil-collection
-    :after evil
-    :config
-    (setq evil-collection-mode-list '(dashboard dired ibuffer))
-    (evil-collection-init))
-  (use-package evil-tutor)
-
 (use-package general
   :config
   (general-evil-setup)
@@ -75,7 +60,10 @@
   
   (tt/leader-keys
     "h" '(:ignore t :wk "Help")
+    "h b" '(describe-bindings :wk "Describe bindings")
+    "h k" '(describe-key :wk "Describe key")
     "h f" '(describe-function :wk "Describe function")
+    "h L" '(describe-language-environment :wk "Describe language environment")
     "h v" '(describe-variable :wk "Describe variable")
     "h r" '(:ignore t :wk "Reload")
     "h r r" '((lambda () (interactive)
@@ -86,6 +74,9 @@
     ;;"h r r" '((lambda () (interactive) (load-file "~/.config/emacs/init.el")) :wk "Reload emacs config"))
     ;;"h r r" '(reload-init-file :wk "Reload emacs config"))
     "h t" '(load-theme :wk "Load theme")
+    "h w" '(where-is :wk "Prints keybinding for command if set")
+    "h x" '(describe-command :wk "Display full documentation for command"))
+
 
   (tt/leader-keys
     "m" '(:ignore t :wk "Org")
@@ -136,6 +127,28 @@
     "w K" '(buf-move-up :wk "Buffer move up")
     "w L" '(buf-move-right :wk "Buffer move right"))
 )
+
+;; Expands to: (elpaca evil (use-package evil :demand t))
+(use-package evil
+    :init      ;; tweak evil's configuration before loading it
+    (setq evil-want-integration t) ;; This is optional since it's already set to t by default.
+    (setq evil-want-keybinding nil)
+    (setq evil-vsplit-window-right t)
+    (setq evil-split-window-below t)
+    (setq evil-want-C-u-scroll t)
+    (setq evil-want-C-i-jump nil)
+    (evil-mode 1)
+    (evil-global-set-key 'motion "j" 'evil-next-visual-line)
+    (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
+
+    (evil-set-initial-state 'messages-buffer-mode 'normal)
+    (evil-set-initial-state 'dashboard-mode 'normal))
+  (use-package evil-collection
+    :after evil
+    :config
+    (setq evil-collection-mode-list '(dashboard dired ibuffer))
+    (evil-collection-init))
+  (use-package evil-tutor)
 
 (use-package all-the-icons
   :ensure t
