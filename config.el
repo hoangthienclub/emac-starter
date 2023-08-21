@@ -37,13 +37,23 @@
     "TAB TAB" '(comment-line :wk "Comment lines"))
 
   (tt/leader-keys
-    "b" '(:ignore t :wk "buffer")
+    "b" '(:ignore t :wk "Bookmarks/Buffers")
+    "b c" '(clone-indirect-buffer :wk "Create indirect buffer copy in a split")
+    "b C" '(clone-indirect-buffer-other-window :wk "Clone indirect buffer in new window")
+    "b d" '(bookmark-delete :wk "Delete bookmark")
     "b b" '(switch-to-buffer :wk "Switch buffer")
     "b i" '(ibuffer :wk "Ibuffer")
     "b k" '(kill-this-buffer :wk "Kill this buffer")
+    "b K" '(kill-some-buffers :wk "Kill multiple buffers")
+    "b l" '(list-bookmarks :wk "List bookmarks")
+    "b m" '(bookmark-set :wk "Set bookmark")
     "b n" '(next-buffer :wk "Next buffer")
     "b p" '(previous-buffer :wk "Previous buffer")
-    "b r" '(revert-buffer :wk "Reload buffer"))
+    "b r" '(revert-buffer :wk "Reload buffer")
+    "b R" '(rename-buffer :wk "Rename buffer")
+    "b s" '(basic-save-buffer :wk "Save buffer")
+    "b S" '(save-some-buffers :wk "Save multiple buffers")
+    "b w" '(bookmark-save :wk "Save current bookmarks to bookmark file"))
 
   (tt/leader-keys
     "d" '(:ignore t :wk "Dired")
@@ -66,10 +76,16 @@
   (tt/leader-keys
     "h" '(:ignore t :wk "Help")
     "h f" '(describe-function :wk "Describe function")
-    "h t" '(load-theme :wk "Load theme")
     "h v" '(describe-variable :wk "Describe variable")
+    "h r" '(:ignore t :wk "Reload")
+    "h r r" '((lambda () (interactive)
+                (load-file "~/.emacs.d/init.el")
+                (ignore (elpaca-process-queues)))
+              :wk "Reload emacs config")
+
     ;;"h r r" '((lambda () (interactive) (load-file "~/.config/emacs/init.el")) :wk "Reload emacs config"))
-    "h r r" '(reload-init-file :wk "Reload emacs config"))
+    ;;"h r r" '(reload-init-file :wk "Reload emacs config"))
+    "h t" '(load-theme :wk "Load theme")
 
   (tt/leader-keys
     "m" '(:ignore t :wk "Org")
@@ -94,8 +110,10 @@
   (tt/leader-keys
     "t" '(:ignore t :wk "Toggle")
     "t e" '(eshell-toggle :wk "Toggle eshell")
+    "t f" '(flycheck-mode :wk "Toggle flycheck")
     "t l" '(display-line-numbers-mode :wk "Toggle line numbers")
     "t n" '(neotree-toggle :wk "Toggle neotree file viewer")
+    "t r" '(rainbow-mode :wk "Toggle rainbow mode")
     "t t" '(visual-line-mode :wk "Toggle truncated lines")
     "t v" '(vterm-toggle :wk "Toggle vterm"))
 
@@ -286,6 +304,15 @@
 (use-package haskell-mode)
 (use-package lua-mode)
 
+(use-package doom-modeline
+  :ensure t
+  :init (doom-modeline-mode 1)
+  :config
+  (setq doom-modeline-height 35      ;; sets modeline height
+        doom-modeline-bar-width 5    ;; sets right bar width
+        doom-modeline-persp-name t   ;; adds perspective name to modeline
+        doom-modeline-persp-icon t)) ;; adds folder icon next to persp name
+
 (use-package neotree
   :config
   (setq neo-smart-open t
@@ -359,7 +386,7 @@
 
 (use-package vterm
 :config
-(setq shell-file-name "/bin/sh"
+(setq shell-file-name "/bin/zsh"
       vterm-max-scrollback 5000))
 
 (use-package vterm-toggle
@@ -384,8 +411,8 @@
 (set-frame-parameter nil 'alpha-background 90)
 (add-to-list 'default-frame-alist '(alpha-background . 90)) ; For all new frames henceforth
 ;; set transparency
-(set-frame-parameter (selected-frame) 'alpha '(90 90))
-(add-to-list 'default-frame-alist '(alpha 90 90))
+;;(set-frame-parameter (selected-frame) 'alpha '(90 90))
+;;(add-to-list 'default-frame-alist '(alpha 90 90))
 
 ;;(load-theme 'dtmacs t)
 ;;(use-package doom-themes
@@ -405,22 +432,6 @@
     (doom-themes-neotree-config)
     (doom-themes-org-config))
 
-(use-package doom-modeline
-  :custom
-  (doom-modeline-height 35)
-  (doom-modeline-bar-width 8)
-  (doom-modeline-time-icon nil)
-  (doom-modeline-buffer-encoding 'nondefault)
-  (doom-modeline-unicode-fallback t)
-  (doom-modeline-bar-inactive nil)
-  :config
-  ;; FIX Add some padding to the right
-  (doom-modeline-def-modeline 'main
-    '(bar workspace-name window-number modals matches follow buffer-info
-      remote-host buffer-position word-count parrot selection-info)
-    '(objed-state misc-info persp-name battery grip irc mu4e gnus github debug
-      repl lsp minor-modes input-method indent-info buffer-encoding major-mode
-      process vcs checker time "   ")))
 (setq evil-normal-state-tag   (propertize "[Normal]" 'face '((:background "green" :foreground "black")))
       evil-emacs-state-tag    (propertize "[Emacs]" 'face '((:background "orange" :foreground "black")))
       evil-insert-state-tag   (propertize "[Insert]" 'face '((:background "red") :foreground "white"))
