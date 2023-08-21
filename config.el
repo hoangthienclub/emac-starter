@@ -456,6 +456,12 @@ one, an error is signaled."
                   (reusable-frames . visible)
                   (window-height . 0.3))))
 
+(set-frame-parameter nil 'alpha-background 90)
+(add-to-list 'default-frame-alist '(alpha-background . 90)) ; For all new frames henceforth
+;; set transparency
+(set-frame-parameter (selected-frame) 'alpha '(90 90))
+(add-to-list 'default-frame-alist '(alpha 90 90))
+
 ;;(load-theme 'dtmacs t)
 ;;(use-package doom-themes
 ;;  :ensure t)

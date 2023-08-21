@@ -35,6 +35,7 @@
   - [[#eshell][Eshell]]
   - [[#vterm][Vterm]]
   - [[#vterm-toggle][Vterm-Toggle]]
+- [[#transparency][TRANSPARENCY]]
 - [[#theme][THEME]]
 - [[#which-key][WHICH-KEY]]
 
@@ -641,6 +642,19 @@ Vterm is a terminal emulator within Emacs.  The 'shell-file-name' setting sets t
                   (reusable-frames . visible)
                   (window-height . 0.3))))
 #+end_src
+
+* TRANSPARENCY
+With Emacs version 29, true transparency has been added.  
+
+#+begin_src emacs-lisp
+(set-frame-parameter nil 'alpha-background 90)
+(add-to-list 'default-frame-alist '(alpha-background . 90)) ; For all new frames henceforth
+;; set transparency
+(set-frame-parameter (selected-frame) 'alpha '(90 90))
+(add-to-list 'default-frame-alist '(alpha 90 90))
+
+#+end_src
+
 
 * THEME
 The first of the two lines below designates the directory where will place all of our themes.  The second line loads our chosen theme which is *dtmacs*, a theme that I created with the help of the [[https://emacsfodder.github.io/emacs-theme-editor/][Emacs Theme Editor]].
