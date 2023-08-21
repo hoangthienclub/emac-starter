@@ -103,6 +103,14 @@
     "b r" '(revert-buffer :wk "Reload buffer"))
 
   (tt/leader-keys
+    "d" '(:ignore t :wk "Dired")
+    "d d" '(dired :wk "Open dired")
+    "d j" '(dired-jump :wk "Dired jump to current")
+    "d n" '(neotree-dir :wk "Open directory in neotree")
+    "d p" '(peep-dired :wk "Peep-dired"))
+
+
+  (tt/leader-keys
     "e" '(:ignore t :wk "Eshell/Evaluate")    
     "e b" '(eval-buffer :wk "Evaluate elisp in buffer")
     "e d" '(eval-defun :wk "Evaluate defun containing or after point")
@@ -115,6 +123,7 @@
   (tt/leader-keys
     "h" '(:ignore t :wk "Help")
     "h f" '(describe-function :wk "Describe function")
+    "h t" '(load-theme :wk "Load theme")
     "h v" '(describe-variable :wk "Describe variable")
     ;;"h r r" '((lambda () (interactive) (load-file "~/.config/emacs/init.el")) :wk "Reload emacs config"))
     "h r r" '(reload-init-file :wk "Reload emacs config"))
@@ -280,6 +289,26 @@ one, an error is signaled."
   (dashboard-setup-startup-hook))
 
 (use-package diminish)
+
+(use-package dired-open
+  :config
+  (setq dired-open-extensions '(("gif" . "sxiv")
+                                ("jpg" . "sxiv")
+                                ("png" . "sxiv")
+                                ("mkv" . "mpv")
+                                ("mp4" . "mpv"))))
+
+(use-package peep-dired
+  :after dired
+  :hook (evil-normalize-keymaps . peep-dired-hook)
+  :config
+    (evil-define-key 'normal dired-mode-map (kbd "h") 'dired-up-directory)
+    (evil-define-key 'normal dired-mode-map (kbd "l") 'dired-open-file) ; use dired-find-file instead if not using dired-open package
+    (evil-define-key 'normal peep-dired-mode-map (kbd "j") 'peep-dired-next-file)
+    (evil-define-key 'normal peep-dired-mode-map (kbd "k") 'peep-dired-prev-file)
+)
+
+;;(add-hook 'peep-dired-hook 'evil-normalize-keymaps)
 
 (use-package flycheck
   :ensure t
@@ -472,6 +501,9 @@ one, an error is signaled."
 (use-package doom-themes
   :config 
     ;;(load-theme 'doom-dracula t))
+    (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+      doom-themes-enable-italic t)
+
     (load-theme 'catppuccin-macchiato t))
 
 (use-package doom-modeline
