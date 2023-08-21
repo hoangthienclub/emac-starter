@@ -11,6 +11,7 @@
   - [[#load-evil-mode][Load Evil Mode]]
   - [[#general-keybindings][General Keybindings]]
 - [[#all-the-icons][ALL THE ICONS]]
+- [[#backup][BACKUP]]
 - [[#company][COMPANY]]
 - [[#dashboard][DASHBOARD]]
 - [[#diminish][DIMINISH]]
@@ -188,6 +189,15 @@ This is an icon set that can be used with dashboard, dired, ibuffer and other Em
 (use-package all-the-icons-dired
   :hook (dired-mode . (lambda () (all-the-icons-dired-mode t))))
 #+end_src
+
+* BACKUP 
+By default, Emacs creates automatic backups of files in their original directories, such "file.el" and the backup "file.el~".  This leads to a lot of clutter, so let's tell Emacs to put all backups that it creates in the =TRASH= directory.
+
+#+begin_src emacs-lisp
+(setq backup-directory-alist '((".*" . "~/.Trash")))
+
+#+end_src
+
 
 * COMPANY
 [[https://company-mode.github.io/][Company]] is a text completion framework for Emacs. The name stands for "complete anything".  Completion will start automatically after you type a few letters. Use M-n and M-p to select, <return> to complete or <tab> to complete the common part.

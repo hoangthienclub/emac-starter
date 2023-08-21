@@ -126,6 +126,8 @@
 (use-package all-the-icons-dired
   :hook (dired-mode . (lambda () (all-the-icons-dired-mode t))))
 
+(setq backup-directory-alist '((".*" . "~/.Trash")))
+
 (use-package company
   :defer 2
   :diminish
