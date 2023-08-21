@@ -116,6 +116,7 @@
   "e e" '(eval-expression :wk "Evaluate and elisp expression")
   "e l" '(eval-last-sexp :wk "Evaluate elisp expression before point")
   "e r" '(eval-region :wk "Evaluate elisp in region")
+  "e h" '(counsel-esh-history :wk "Eshell history")
   "e s" '(eshell :wk "Eshell"))
 (tt/leader-keys
   "t" '(:ignore t :wk "Toggle")
@@ -346,6 +347,10 @@ one, an error is signaled."
   (interactive)
   (load-file user-init-file)
   (load-file user-init-file))
+
+;; Install use-package if not already installed
+(add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
+(load-theme 'dtmacs t)
 
 (use-package which-key
 :init

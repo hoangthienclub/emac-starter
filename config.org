@@ -24,6 +24,7 @@
   - [[#vterm][Vterm]]
   - [[#vterm-toggle][Vterm-Toggle]]
 - [[#reload-emacs][RELOAD EMACS]]
+- [[#theme][THEME]]
 - [[#which-key][WHICH KEY]]
 
 * IMPORTANT PROGRAMS TO LOAD FIRST
@@ -156,6 +157,7 @@
     "e e" '(eval-expression :wk "Evaluate and elisp expression")
     "e l" '(eval-last-sexp :wk "Evaluate elisp expression before point")
     "e r" '(eval-region :wk "Evaluate elisp in region")
+    "e h" '(counsel-esh-history :wk "Eshell history")
     "e s" '(eshell :wk "Eshell"))
   (tt/leader-keys
     "t" '(:ignore t :wk "Toggle")
@@ -468,6 +470,15 @@ This is just an example of how to create a simple function in Emacs.  Use this f
   (interactive)
   (load-file user-init-file)
   (load-file user-init-file))
+#+end_src
+
+* THEME
+The first of the two lines below designates the directory where will place all of our themes.  The second line loads our chosen theme which is *dtmacs*, a theme that I created with the help of the [[https://emacsfodder.github.io/emacs-theme-editor/][Emacs Theme Editor]].
+
+#+begin_src emacs-lisp
+  ;; Install use-package if not already installed
+  (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
+  (load-theme 'dtmacs t)
 #+end_src
 
 * WHICH KEY
