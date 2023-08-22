@@ -350,8 +350,21 @@
     "w L" '(buf-move-right :wk "Buffer move right"))
 
   (dqv/leader-key
-      "s" '(:ignore t :wk "Search")
-      "s f" '(swiper :wk "Search File"))
+    "s" '(:ignore t :wk "Search")
+    "s f" '(swiper :wk "Search File"))
+
+  (dqv/leader-key
+    "d" '(:ignore t :wk "LSP")
+    "ll"  #'lsp
+    "lm"  #'lsp-ui-imenu
+    "ld"  #'xref-find-definitions-other-window
+    "lD"  #'xref-find-definitions)
+
+  (dqv/leader-key
+    "p" '(:ignore t:wl "Projectile")
+    "p a" '(projectile-add-known-project :wk "Add Project")
+    "p s" '(projectile-switch-project :wk "Switch Project")
+    "p r" '(projectile-remove-known-project :wk "Remove Known Project"))
 
 (use-package company
   :straight (:build t)
@@ -477,6 +490,11 @@
   (projectile-mode)
   (add-to-list 'projectile-ignored-projects "~/")
   (add-to-list 'projectile-globally-ignored-directories "^node_modules$"))
+
+(use-package counsel-projectile
+  :straight (:build t)
+  :after (counsel projectile)
+  :config (counsel-projectile-mode))
 
 (use-package neotree
   :config

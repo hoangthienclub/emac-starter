@@ -597,101 +597,116 @@ Org mode source blocks have some really weird and annoying default indentation b
 #+end_src
 ** Keybindings
 #+begin_src emacs-lisp
-  (use-package general
-    :straight (:build t)
-    :init
+(use-package general
+  :straight (:build t)
+  :init
 
-    (general-auto-unbind-keys)
-    :config
-    (general-evil-setup)
+  (general-auto-unbind-keys)
+  :config
+  (general-evil-setup)
 
-    ;; set up 'SPC' as the global leader key
-    (general-create-definer dqv/leader-key
-        :states '(normal insert visual emacs)
-        :keymaps 'override
-        :prefix "SPC" ;; set leade
-        :global-prefix "M-SPC")
-    (general-create-definer dqv/evil
-        :states '(normal)) ;; access leader in insert mode
-    (general-create-definer dqv/major-leader-key
+  ;; set up 'SPC' as the global leader key
+  (general-create-definer dqv/leader-key
       :states '(normal insert visual emacs)
       :keymaps 'override
-      :prefix ","
-      :global-prefix "M-m"))
+      :prefix "SPC" ;; set leade
+      :global-prefix "M-SPC")
+  (general-create-definer dqv/evil
+      :states '(normal)) ;; access leader in insert mode
+  (general-create-definer dqv/major-leader-key
+    :states '(normal insert visual emacs)
+    :keymaps 'override
+    :prefix ","
+    :global-prefix "M-m"))
 
-    (dqv/leader-key
-        "SPC" '(counsel-M-x :wk "Counsel M-x")
-        "." '(find-file :wk "Find file")
-        "f c" '((lambda () (interactive) (find-file "~/.emacs.d/config.org")) :wk "Edit emacs config")
-        "f r" '(counsel-recentf :wk "Find recent files")
-        "TAB TAB" '(comment-line :wk "Comment lines"))
+  (dqv/leader-key
+      "SPC" '(counsel-M-x :wk "Counsel M-x")
+      "." '(find-file :wk "Find file")
+      "f c" '((lambda () (interactive) (find-file "~/.emacs.d/config.org")) :wk "Edit emacs config")
+      "f r" '(counsel-recentf :wk "Find recent files")
+      "TAB TAB" '(comment-line :wk "Comment lines"))
 
-    (dqv/leader-key
-        "d" '(:ignore t :wk "Dired")
-        "d d" '(dired :wk "Open dired")
-        "d j" '(dired-jump :wk "Dired jump to current")
-        "d n" '(neotree-dir :wk "Open directory in neotree")
-        "d p" '(peep-dired :wk "Peep-dired"))
+  (dqv/leader-key
+      "d" '(:ignore t :wk "Dired")
+      "d d" '(dired :wk "Open dired")
+      "d j" '(dired-jump :wk "Dired jump to current")
+      "d n" '(neotree-dir :wk "Open directory in neotree")
+      "d p" '(peep-dired :wk "Peep-dired"))
 
 
-    (dqv/leader-key
-      "b" '(:ignore t :wk "Bookmarks/Buffers")
-      "b c" '(clone-indirect-buffer :wk "Create indirect buffer copy in a split")
-      "b C" '(clone-indirect-buffer-other-window :wk "Clone indirect buffer in new window")
-      "b d" '(bookmark-delete :wk "Delete bookmark")
-      "b i" '(ibuffer :wk "Ibuffer")
-      "b k" '(kill-this-buffer :wk "Kill this buffer")
-      "b K" '(kill-some-buffers :wk "Kill multiple buffers")
-      "b l" '(list-bookmarks :wk "List bookmarks")
-      "b m" '(bookmark-set :wk "Set bookmark")
-      "b n" '(next-buffer :wk "Next buffer")
-      "b p" '(previous-buffer :wk "Previous buffer")
-      "b r" '(revert-buffer :wk "Reload buffer")
-      "b R" '(rename-buffer :wk "Rename buffer")
-      "b s" '(basic-save-buffer :wk "Save buffer")
-      "b S" '(save-some-buffers :wk "Save multiple buffers")
-      "b w" '(bookmark-save :wk "Save current bookmarks to bookmark file"))
+  (dqv/leader-key
+    "b" '(:ignore t :wk "Bookmarks/Buffers")
+    "b c" '(clone-indirect-buffer :wk "Create indirect buffer copy in a split")
+    "b C" '(clone-indirect-buffer-other-window :wk "Clone indirect buffer in new window")
+    "b d" '(bookmark-delete :wk "Delete bookmark")
+    "b i" '(ibuffer :wk "Ibuffer")
+    "b k" '(kill-this-buffer :wk "Kill this buffer")
+    "b K" '(kill-some-buffers :wk "Kill multiple buffers")
+    "b l" '(list-bookmarks :wk "List bookmarks")
+    "b m" '(bookmark-set :wk "Set bookmark")
+    "b n" '(next-buffer :wk "Next buffer")
+    "b p" '(previous-buffer :wk "Previous buffer")
+    "b r" '(revert-buffer :wk "Reload buffer")
+    "b R" '(rename-buffer :wk "Rename buffer")
+    "b s" '(basic-save-buffer :wk "Save buffer")
+    "b S" '(save-some-buffers :wk "Save multiple buffers")
+    "b w" '(bookmark-save :wk "Save current bookmarks to bookmark file"))
 
-    (dqv/leader-key
-      "t" '(:ignore t :wk "Toggle")
-      "t e" '(eshell-toggle :wk "Toggle eshell")
-      "t f" '(flycheck-mode :wk "Toggle flycheck")
-      "t l" '(display-line-numbers-mode :wk "Toggle line numbers")
-      "t n" '(neotree-toggle :wk "Toggle neotree file viewer")
-      "t r" '(rainbow-mode :wk "Toggle rainbow mode")
-      "t t" '(visual-line-mode :wk "Toggle truncated lines")
-      "t v" '(vterm-toggle :wk "Toggle vterm"))
+  (dqv/leader-key
+    "t" '(:ignore t :wk "Toggle")
+    "t e" '(eshell-toggle :wk "Toggle eshell")
+    "t f" '(flycheck-mode :wk "Toggle flycheck")
+    "t l" '(display-line-numbers-mode :wk "Toggle line numbers")
+    "t n" '(neotree-toggle :wk "Toggle neotree file viewer")
+    "t r" '(rainbow-mode :wk "Toggle rainbow mode")
+    "t t" '(visual-line-mode :wk "Toggle truncated lines")
+    "t v" '(vterm-toggle :wk "Toggle vterm"))
 
-    (dqv/leader-key
-        "h r" '(:ignore t :wk "Reload")
-        "h t" '(load-theme :wk "Load theme")
-        "h r r" '((lambda () (interactive)
-                    (load-file "~/.emacs.d/init.el")
-                    (ignore (elpaca-process-queues)))
-                :wk "Reload emacs config"))
+  (dqv/leader-key
+      "h r" '(:ignore t :wk "Reload")
+      "h t" '(load-theme :wk "Load theme")
+      "h r r" '((lambda () (interactive)
+                  (load-file "~/.emacs.d/init.el")
+                  (ignore (elpaca-process-queues)))
+              :wk "Reload emacs config"))
 
-    (dqv/leader-key
-      "w" '(:ignore t :wk "Windows")
-      ;; Window splits
-      "w c" '(evil-window-delete :wk "Close window")
-      "w n" '(evil-window-new :wk "New window")
-      "w s" '(evil-window-split :wk "Horizontal split window")
-      "w v" '(evil-window-vsplit :wk "Vertical split window")
-      ;; Window motions
-      "w h" '(evil-window-left :wk "Window left")
-      "w j" '(evil-window-down :wk "Window down")
-      "w k" '(evil-window-up :wk "Window up")
-      "w l" '(evil-window-right :wk "Window right")
-      "w w" '(evil-window-next :wk "Goto next window")
-      ;; Move Windows
-      "w H" '(buf-move-left :wk "Buffer move left")
-      "w J" '(buf-move-down :wk "Buffer move down")
-      "w K" '(buf-move-up :wk "Buffer move up")
-      "w L" '(buf-move-right :wk "Buffer move right"))
+  (dqv/leader-key
+    "w" '(:ignore t :wk "Windows")
+    ;; Window splits
+    "w c" '(evil-window-delete :wk "Close window")
+    "w n" '(evil-window-new :wk "New window")
+    "w s" '(evil-window-split :wk "Horizontal split window")
+    "w v" '(evil-window-vsplit :wk "Vertical split window")
+    ;; Window motions
+    "w h" '(evil-window-left :wk "Window left")
+    "w j" '(evil-window-down :wk "Window down")
+    "w k" '(evil-window-up :wk "Window up")
+    "w l" '(evil-window-right :wk "Window right")
+    "w w" '(evil-window-next :wk "Goto next window")
+    ;; Move Windows
+    "w H" '(buf-move-left :wk "Buffer move left")
+    "w J" '(buf-move-down :wk "Buffer move down")
+    "w K" '(buf-move-up :wk "Buffer move up")
+    "w L" '(buf-move-right :wk "Buffer move right"))
 
-    (dqv/leader-key
-        "s" '(:ignore t :wk "Search")
-        "s f" '(swiper :wk "Search File"))
+  (dqv/leader-key
+    "s" '(:ignore t :wk "Search")
+    "s f" '(swiper :wk "Search File"))
+
+  (dqv/leader-key
+    "d" '(:ignore t :wk "LSP")
+    "ll"  #'lsp
+    "lm"  #'lsp-ui-imenu
+    "ld"  #'xref-find-definitions-other-window
+    "lD"  #'xref-find-definitions)
+
+  (dqv/leader-key
+    "p" '(:ignore t:wl "Projectile")
+    "p a" '(projectile-add-known-project :wk "Add Project")
+    "p s" '(projectile-switch-project :wk "Switch Project")
+    "p f" '(counsel-projectile-find-file :wk "Find File")
+    "p r" '(projectile-remove-known-project :wk "Remove Known Project"))
+
 #+end_src
 
 * Packages Configuration
@@ -850,6 +865,13 @@ I could almost merge this chapter with the previous one since counsel is a packa
   (add-to-list 'projectile-ignored-projects "~/")
   (add-to-list 'projectile-globally-ignored-directories "^node_modules$"))
  #+end_src
+And of course, there is a counsel package dedicated to projectile.
+#+begin_src emacs-lisp
+(use-package counsel-projectile
+  :straight (:build t)
+  :after (counsel projectile)
+  :config (counsel-projectile-mode))
+#+end_src
 
 ** Neotree
 Neotree is a file tree viewer.  When you open neotree, it jumps to the current file thanks to neo-smart-open.  The neo-window-fixed-size setting makes the neotree width be adjustable.  NeoTree provides following themes: classic, ascii, arrow, icons, and nerd.  Theme can be config'd by setting "two" themes for neo-theme: one for the GUI and one for the terminal.  I like to use 'SPC t' for 'toggle' keybindings, so I have used 'SPC t n' for toggle-neotree.
