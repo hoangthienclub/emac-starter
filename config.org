@@ -24,10 +24,12 @@
   - [[#doom-modeline][Doom Modeline]]
   - [[#rainbow-mode][Rainbow Mode]]
   - [[#rainbow-delimiters][Rainbow Delimiters]]
+  - [[#hydra][Hydra]]
   - [[#yall-want-some-more-colors][Y’all want some more COLORS?]]
 - [[#evil][Evil]]
   - [[#basic][Basic]]
   - [[#evil-define-keys][Evil Define Keys]]
+  - [[#extend][Extend]]
 - [[#org-mode][Org-mode]]
   - [[#basic-config][Basic Config]]
   - [[#configuration-babel-languages][Configuration Babel Languages]]
@@ -47,6 +49,12 @@
   - [[#neotree][Neotree]]
   - [[#avy][Avy]]
   - [[#yasnippet][Yasnippet]]
+- [[#editing][Editing]]
+  - [[#editor-config][Editor Config]]
+  - [[#evil-nerd-commenter][Evil Nerd Commenter]]
+  - [[#string-edit][string-edit]]
+  - [[#move-text][Move Text]]
+  - [[#eyebrown][Eyebrown]]
 - [[#programing][Programing]]
   - [[#fringe][Fringe]]
   - [[#treesister][Treesister]]
@@ -58,6 +66,7 @@
   - [[#csv][CSV]]
   - [[#json][JSON]]
 - [[#general-programming-languages][General Programming Languages]]
+  - [[#docker][Docker]]
   - [[#web-programming][Web programming]]
   - [[#css][CSS]]
   - [[#javascript][Javascript]]
@@ -590,6 +599,16 @@ This makes Lisp especially more readable, but it’s also nice to have for any l
   :defer t
   :hook (prog-mode . rainbow-delimiters-mode))
 #+end_src
+** Hydra
+Hydra is a simple menu creator for keybindings.
+
+#+begin_src emacs-lisp
+
+(use-package hydra
+  :straight (:build t)
+  :defer t)
+
+#+end_src
 ** Y’all want some more COLORS?
 It is possible to make info buffers much more colorful (and imo easier to read) with this simple package:
 #+begin_src emacs-lisp
@@ -623,6 +642,40 @@ Evil is an extensible vi/vim layer for Emacs.  Because…let’s face it.  The V
 (evil-global-set-key 'motion "j" 'evil-next-visual-line)
 (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
 (evil-global-set-key 'motion "w" 'evil-avy-goto-word-1)
+#+end_src
+
+** Extend
+#+begin_src emacs-lisp
+
+(use-package evil-collection
+  :after evil
+  :straight (:build t)
+  :config
+  (evil-collection-init))
+
+#+end_src
+
+~undo-tree~ is my preferred way of undoing and redoing stuff. The main reason is it doesn’t create a linear undo/redo history, but rather a complete tree you can navigate to see your complete editing history. One of the two obvious things to do are to tell Emacs to save all its undo history fies in a dedicated directory, otherwise we’d risk littering all of our directories. The second thing is to simply globally enable its mode.
+
+#+begin_src emacs-lisp
+
+(use-package undo-tree
+  :defer t
+  :straight (:build t)
+  :custom
+  (undo-tree-history-directory-alist
+   `(("." . ,(expand-file-name (file-name-as-directory "undo-tree-hist")
+                               user-emacs-directory))))
+  :init
+  (global-undo-tree-mode)
+  :config
+  (setq undo-tree-visualizer-diff       t
+        undo-tree-auto-save-history     t
+        undo-tree-enable-undo-in-region t
+        undo-limit        (* 800 1024)
+        undo-strong-limit (* 12 1024 1024)
+        undo-outer-limit  (* 128 1024 1024)))
+
 #+end_src
 
 * Org-mode
@@ -776,6 +829,9 @@ Org mode source blocks have some really weird and annoying default indentation b
   (general-auto-unbind-keys)
   :config
   (general-evil-setup)
+  (general-create-definer dqv/underfine
+      :keymaps 'override
+      :states '(normal emacs))
 
   ;; set up 'SPC' as the global leader key
   (general-create-definer dqv/leader-key
@@ -908,6 +964,18 @@ Company is, in my opinion, the best autocompleting engine for Emacs, and it is o
         company-dabbrev-downcase    nil))
 #+end_src
 
+This package is a backend for company. It emulates ac-source-dictionary by proposing text related to the current major-mode.
+
+#+begin_src emacs-lisp
+
+(use-package company-dict
+  :after company
+  :straight (:build t)
+  :config
+  (setq company-dict-dir (expand-file-name "dicts" user-emacs-directory)))
+
+#+end_src
+
 ** Ivy
 My main menu package is ivy which I use as much as possible –I’ve noticed helm can be slow, very slow in comparison to ivy so I’ll use the latter as much as possible. Actually, only ivy is installed for now. I could have used ido too, but I find it to be a bit too restricted in terms of features compared to ivy.
 #+begin_src emacs-lisp
@@ -921,7 +989,7 @@ My main menu package is ivy which I use as much as possible –I’ve noticed he
         (setq ivy-count-format "(%d/%d) ")
         (setq enable-recursive-minibuffers t)
     :config
-    (ivy-mode 1)
+    (ivy-mode 1 )
     (setq ivy-wrap                        t
           ivy-height                      17
           ivy-sort-max-size               50000
@@ -1025,6 +1093,16 @@ I could almost merge this chapter with the previous one since counsel is a packa
 #+end_src
 
 ** Projectile
+First, I need to install ripgrep, a faster reimplementation of grep, which will be very useful when managing projects.
+
+#+begin_src emacs-lisp
+
+(use-package ripgrep
+  :if (executable-find "rg")
+  :straight (:build t)
+  :defer t)
+
+#+end_src
 #+begin_src emacs-lisp
 (use-package projectile
   :straight (:build t)
@@ -1035,9 +1113,14 @@ I could almost merge this chapter with the previous one since counsel is a packa
   :config
   (projectile-mode)
   (add-to-list 'projectile-ignored-projects "~/")
-  (add-to-list 'projectile-globally-ignored-directories "^node_modules$"))
+  (add-to-list 'projectile-globally-ignored-directories "^node_modules$")
+    :general
+    (dqv/leader-key
+        "p" '(:keymap projectile-command-map :which-key "projectile")))
  #+end_src
+
 And of course, there is a counsel package dedicated to projectile.
+
 #+begin_src emacs-lisp
 (use-package counsel-projectile
   :straight (:build t)
@@ -1136,6 +1219,80 @@ And finally, with ivy you can chose your snippets from a menu if you’re not su
     :infix "i"
     :packages 'ivy-yasnippet
     "y" #'ivy-yasnippet))
+#+end_src
+* Editing
+** Editor Config
+Editor config is a unified way of passing to your text editor settings everyone working in a repo need to follow. .editorconfig files work for VSCode users, vim users, Atom users, Sublime users, and of course Emacs users.
+
+#+begin_src emacs-lisp
+
+(use-package editorconfig
+  :defer t
+  :straight (:build t)
+  :diminish editorconfig-mode
+  :config
+  (editorconfig-mode t))
+
+#+end_src
+
+** Evil Nerd Commenter
+Emacs’ default commenting system is nice, but I don’t find it smart enough for me.
+
+#+begin_src emacs-lisp
+
+(use-package evil-nerd-commenter
+  :after evil
+  :straight (:build t))
+(global-set-key (kbd "s-/") #'evilnc-comment-or-uncomment-lines)
+
+#+end_src
+** string-edit
+~string-edit~ is a cool package that allows the user to write naturally a string and get it automatically escaped for you. No more manually escaping your strings!
+
+#+begin_src emacs-lisp
+(use-package string-edit-at-point
+  :defer t
+  :straight (:build t))
+#+end_src
+
+** Move Text
+#+begin_src emacs-lisp
+
+(use-package move-text
+  :straight (:build t))
+
+(global-set-key (kbd "s-j") #'move-text-down)
+(global-set-key (kbd "s-k") #'move-text-up)
+
+#+end_src
+** Eyebrown
+#+begin_src emacs-lisp
+
+(use-package eyebrowse
+  :straight (:build t)
+  :config
+  (setq eyebrowse-new-workspace t)
+  (eyebrowse-mode 1))
+
+(dqv/leader-key
+ "TAB"  '(:ignore t :which-key "Window Management")
+ "TAB 0" '(eyebrowse-switch-to-window-config-0 :which-key "Select Windown 0")
+ "TAB 1" '(eyebrowse-switch-to-window-config-1 :which-key "Select Window 1")
+ "TAB 2" '(eyebrowse-switch-to-window-config-2 :which-key "Select Window 2")
+ "TAB 3" '(eyebrowse-switch-to-window-config-3 :which-key "Select Window 3")
+ "TAB 4" '(eyebrowse-switch-to-window-config-4 :which-key "Select Window 4")
+ "TAB 5" '(eyebrowse-switch-to-window-config-5 :which-key "Select Window 5")
+ "TAB 6" '(eyebrowse-switch-to-window-config-6 :which-key "Select Window 6")
+ "TAB 7" '(eyebrowse-switch-to-window-config-7 :which-key "Select Window 7")
+ "TAB 8" '(eyebrowse-switch-to-window-config-8 :which-key "Select Window 8")
+ "TAB 9" '(eyebrowse-switch-to-window-config-9 :which-key "Select Window 9")
+ "TAB r" '(eyebrowse-rename-window-config :which-key "Rename Window")
+ "TAB n" '(eyebrowse-create-named-window-config :which-key "Create New Window")
+ "TAB TAB" '(eyebrowse-switch-to-window-config :which-key "Switch Window")
+ "TAB d" '(eyebrowse-close-window-config :which-key "Delete Window")
+ "TAB k" '(eyebrowse-next-window-config :which-key "Next Window")
+ "TAB j" '(eyebrowse-prev-window-config :which-key "Previous Window"))
+
 #+end_src
 * Programing
 ** Fringe
@@ -1406,6 +1563,30 @@ We then also have an autocompletion package that adds to company the Nginx synta
     "f" #'json-pretty-print-buffer))
 #+end_src
 * General Programming Languages
+** Docker
+Docker is an awesome tool for reproducible development environments. Due to this, I absolutely need a mode for editing Dockerfiles.
+
+#+begin_src emacs-lisp
+
+(use-package dockerfile-mode
+  :defer t
+  :straight (:build t)
+  :hook (dockerfile-mode . lsp-deferred)
+  :init
+  (put 'docker-image-name 'safe-local-variable #'stringp)
+  :mode "Dockerfile\\'")
+
+#+end_src
+
+The docker package also provides interactivity with Docker and docker-compose from Emacs.
+
+#+begin_src emacs-lisp
+
+(use-package docker
+  :defer t
+  :straight (:build t))
+
+#+end_src
 ** Web programming
 [[https://emmet.io/][Emmet]] is a powerful templating engine that can generate through simple CSS-like expression some HTML so you don’t have to write everything by hand.
 #+begin_src emacs-lisp

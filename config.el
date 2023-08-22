@@ -222,6 +222,10 @@ APPEND and COMPARE-FN, see `add-to-list'."
   :defer t
   :hook (prog-mode . rainbow-delimiters-mode))
 
+(use-package hydra
+  :straight (:build t)
+  :defer t)
+
 (use-package info-colors
   :straight (:build t)
   :commands info-colors-fnontify-node
@@ -246,6 +250,29 @@ APPEND and COMPARE-FN, see `add-to-list'."
 (evil-global-set-key 'motion "j" 'evil-next-visual-line)
 (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
 (evil-global-set-key 'motion "w" 'evil-avy-goto-word-1)
+
+(use-package evil-collection
+  :after evil
+  :straight (:build t)
+  :config
+  (evil-collection-init))
+
+(use-package undo-tree
+  :defer t
+  :straight (:build t)
+  :custom
+  (undo-tree-history-directory-alist
+   `(("." . ,(expand-file-name (file-name-as-directory "undo-tree-hist")
+                               user-emacs-directory))))
+  :init
+  (global-undo-tree-mode)
+  :config
+  (setq undo-tree-visualizer-diff       t
+        undo-tree-auto-save-history     t
+        undo-tree-enable-undo-in-region t
+        undo-limit        (* 800 1024)
+        undo-strong-limit (* 12 1024 1024)
+        undo-outer-limit  (* 128 1024 1024)))
 
 (defun efs/org-mode-setup ()
   (org-indent-mode)
@@ -351,23 +378,9 @@ APPEND and COMPARE-FN, see `add-to-list'."
       which-key-allow-imprecise-window-fit nil
       which-key-separator " → " ))
 
- (use-package which-key-posframe
+(use-package which-key-posframe
   :ensure t
   :config
-  (setq which-key-posframe-parameters
-         '((left-fringe . 20)   ; Adjust left padding
-          (right-fringe . 20)  ; Adjust right padding
-          (internal-border-width . 100))) ; Adjust internal padding
-  (setq posframe-style
-        '((top . 20)                 ; Margin at the top
-          (left . 0)
-          (width . auto)
-          (height . auto)
-          (min-height . 0)          ; No bottom margin
-          (internal-border-width . 8)
-          (background-color . "#222")
-          (foreground-color . "#ddd")
-          (font . "Monospace-10")))
   (which-key-posframe-mode))
 
 (use-package general
@@ -377,6 +390,9 @@ APPEND and COMPARE-FN, see `add-to-list'."
   (general-auto-unbind-keys)
   :config
   (general-evil-setup)
+  (general-create-definer dqv/underfine
+      :keymaps 'override
+      :states '(normal emacs))
 
   ;; set up 'SPC' as the global leader key
   (general-create-definer dqv/leader-key
@@ -502,6 +518,12 @@ APPEND and COMPARE-FN, see `add-to-list'."
         company-dabbrev-ignore-case nil
         company-dabbrev-downcase    nil))
 
+(use-package company-dict
+  :after company
+  :straight (:build t)
+  :config
+  (setq company-dict-dir (expand-file-name "dicts" user-emacs-directory)))
+
 (use-package ivy
   :straight t
   :defer t
@@ -512,7 +534,7 @@ APPEND and COMPARE-FN, see `add-to-list'."
       (setq ivy-count-format "(%d/%d) ")
       (setq enable-recursive-minibuffers t)
   :config
-  (ivy-mode 1)
+  (ivy-mode 1 )
   (setq ivy-wrap                        t
         ivy-height                      17
         ivy-sort-max-size               50000
@@ -594,6 +616,11 @@ APPEND and COMPARE-FN, see `add-to-list'."
 (use-package all-the-icons-dired
   :hook (dired-mode . (lambda () (all-the-icons-dired-mode t))))
 
+(use-package ripgrep
+  :if (executable-find "rg")
+  :straight (:build t)
+  :defer t)
+
 (use-package projectile
   :straight (:build t)
   :diminish projectile-mode
@@ -603,7 +630,10 @@ APPEND and COMPARE-FN, see `add-to-list'."
   :config
   (projectile-mode)
   (add-to-list 'projectile-ignored-projects "~/")
-  (add-to-list 'projectile-globally-ignored-directories "^node_modules$"))
+  (add-to-list 'projectile-globally-ignored-directories "^node_modules$")
+    :general
+    (dqv/leader-key
+        "p" '(:keymap projectile-command-map :which-key "projectile")))
 
 (use-package counsel-projectile
   :straight (:build t)
@@ -674,6 +704,53 @@ APPEND and COMPARE-FN, see `add-to-list'."
     :infix "i"
     :packages 'ivy-yasnippet
     "y" #'ivy-yasnippet))
+
+(use-package editorconfig
+  :defer t
+  :straight (:build t)
+  :diminish editorconfig-mode
+  :config
+  (editorconfig-mode t))
+
+(use-package evil-nerd-commenter
+  :after evil
+  :straight (:build t))
+(global-set-key (kbd "s-/") #'evilnc-comment-or-uncomment-lines)
+
+(use-package string-edit-at-point
+  :defer t
+  :straight (:build t))
+
+(use-package move-text
+  :straight (:build t))
+
+(global-set-key (kbd "s-j") #'move-text-down)
+(global-set-key (kbd "s-k") #'move-text-up)
+
+(use-package eyebrowse
+  :straight (:build t)
+  :config
+  (setq eyebrowse-new-workspace t)
+  (eyebrowse-mode 1))
+
+(dqv/leader-key
+ "TAB"  '(:ignore t :which-key "Window Management")
+ "TAB 0" '(eyebrowse-switch-to-window-config-0 :which-key "Select Windown 0")
+ "TAB 1" '(eyebrowse-switch-to-window-config-1 :which-key "Select Window 1")
+ "TAB 2" '(eyebrowse-switch-to-window-config-2 :which-key "Select Window 2")
+ "TAB 3" '(eyebrowse-switch-to-window-config-3 :which-key "Select Window 3")
+ "TAB 4" '(eyebrowse-switch-to-window-config-4 :which-key "Select Window 4")
+ "TAB 5" '(eyebrowse-switch-to-window-config-5 :which-key "Select Window 5")
+ "TAB 6" '(eyebrowse-switch-to-window-config-6 :which-key "Select Window 6")
+ "TAB 7" '(eyebrowse-switch-to-window-config-7 :which-key "Select Window 7")
+ "TAB 8" '(eyebrowse-switch-to-window-config-8 :which-key "Select Window 8")
+ "TAB 9" '(eyebrowse-switch-to-window-config-9 :which-key "Select Window 9")
+ "TAB r" '(eyebrowse-rename-window-config :which-key "Rename Window")
+ "TAB n" '(eyebrowse-create-named-window-config :which-key "Create New Window")
+ "TAB TAB" '(eyebrowse-switch-to-window-config :which-key "Switch Window")
+ "TAB d" '(eyebrowse-close-window-config :which-key "Delete Window")
+ "TAB k" '(eyebrowse-next-window-config :which-key "Next Window")
+ "TAB j" '(eyebrowse-prev-window-config :which-key "Previous Window"))
 
 (use-package git-gutter-fringe
   :straight (:build t)
@@ -891,6 +968,18 @@ APPEND and COMPARE-FN, see `add-to-list'."
     :packages 'json-mode
     :keymaps 'json-mode-map
     "f" #'json-pretty-print-buffer))
+
+(use-package dockerfile-mode
+  :defer t
+  :straight (:build t)
+  :hook (dockerfile-mode . lsp-deferred)
+  :init
+  (put 'docker-image-name 'safe-local-variable #'stringp)
+  :mode "Dockerfile\\'")
+
+(use-package docker
+  :defer t
+  :straight (:build t))
 
 (use-package emmet-mode
   :straight (:build t)
