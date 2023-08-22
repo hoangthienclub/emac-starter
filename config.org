@@ -9,10 +9,12 @@
   - [[#adding-the-scripts-directory-to-path][Adding the scripts directory to path]]
   - [[#sourcing-the-scripts][Sourcing the scripts]]
   - [[#general-keybindings][General Keybindings]]
+- [[#general-settings][GENERAL SETTINGS]]
 - [[#evil][EVIL]]
   - [[#basic][Basic]]
   - [[#cursor][Cursor]]
-- [[#all-the-icons][ALL THE ICONS]]
+- [[#move-text][MOVE TEXT]]
+- [[#eye-brown][EYE BROWN]]
 - [[#backup][BACKUP]]
 - [[#company][COMPANY]]
 - [[#dashboard][DASHBOARD]]
@@ -46,6 +48,8 @@
 - [[#transparency][TRANSPARENCY]]
 - [[#theme][THEME]]
 - [[#which-key][WHICH-KEY]]
+- [[#programing][PROGRAMING]]
+  - [[#tool][Tool]]
 
 * IMPORTANT PROGRAMS TO LOAD FIRST
 ** Adding the scripts directory to path
@@ -188,11 +192,38 @@
     "s" '(:ignore t:wk "Search")
     "s f" '(swiper :wk "Search on this file")
    )
+
+   (tt/leader-keys
+ "TAB"  '(:ignore t :which-key "Window Management")
+ "TAB 0" '(eyebrowse-switch-to-window-config-0 :which-key "Select Windown 0")
+ "TAB 1" '(eyebrowse-switch-to-window-config-1 :which-key "Select Window 1")
+ "TAB 2" '(eyebrowse-switch-to-window-config-2 :which-key "Select Window 2")
+ "TAB 3" '(eyebrowse-switch-to-window-config-3 :which-key "Select Window 3")
+ "TAB 4" '(eyebrowse-switch-to-window-config-4 :which-key "Select Window 4")
+ "TAB 5" '(eyebrowse-switch-to-window-config-5 :which-key "Select Window 5")
+ "TAB 6" '(eyebrowse-switch-to-window-config-6 :which-key "Select Window 6")
+ "TAB 7" '(eyebrowse-switch-to-window-config-7 :which-key "Select Window 7")
+ "TAB 8" '(eyebrowse-switch-to-window-config-8 :which-key "Select Window 8")
+ "TAB 9" '(eyebrowse-switch-to-window-config-9 :which-key "Select Window 9")
+ "TAB r" '(eyebrowse-rename-window-config :which-key "Rename Window")
+ "TAB n" '(eyebrowse-create-named-window-config :which-key "Create New Window")
+ "TAB TAB" '(eyebrowse-switch-to-window-config :which-key "Switch Window")
+ "TAB d" '(eyebrowse-close-window-config :which-key "Delete Window")
+ "TAB k" '(eyebrowse-next-window-config :which-key "Next Window")
+ "TAB j" '(eyebrowse-prev-window-config :which-key "Previous Window"))
 )
 
 #+end_src
 
-
+* GENERAL SETTINGS
+Default tab width
+#+begin_src emacs-lisp
+(setq-default tab-width 2)
+#+end_src
+Stay Polite, Emacs!
+#+begin_src emacs-lisp
+(defalias 'yes-or-no-p 'y-or-n-p)
+#+end_src
 * EVIL
 ** Basic
 #+begin_src emacs-lisp
@@ -223,16 +254,20 @@
 (setq evil-insert-state-cursor '((bar . 2) "orange")
       evil-normal-state-cursor '(box "orange"))
 #+end_src
-* ALL THE ICONS
-This is an icon set that can be used with dashboard, dired, ibuffer and other Emacs programs.
-  
-#+begin_src emacs-lisp
-(use-package all-the-icons
-  :ensure t
-  :if (display-graphic-p))
 
-(use-package all-the-icons-dired
-  :hook (dired-mode . (lambda () (all-the-icons-dired-mode t))))
+* MOVE TEXT
+#+begin_src emacs-lisp
+(use-package move-text)
+
+(global-set-key (kbd "s-j") #'move-text-down)
+(global-set-key (kbd "s-k") #'move-text-up)
+#+end_src
+* EYE BROWN
+#+begin_src emacs-lisp
+(use-package eyebrowse
+  :config
+  (setq eyebrowse-new-workspace t)
+  (eyebrowse-mode 1))
 #+end_src
 
 * BACKUP 
@@ -731,4 +766,18 @@ The first of the two lines below designates the directory where will place all o
 	  which-key-max-description-length 25
 	  which-key-allow-imprecise-window-fit nil
 	  which-key-separator " → " ))
+#+end_src
+
+* PROGRAMING
+** Tool
+*** Treesister
+Tree sitter is a package for emacs based on ~tree-sitter~ which provides a very fast and flexible way of performing code-highlighting in Emacs.
+#+begin_src emacs-lisp
+(use-package tsc)
+(use-package tree-sitter
+  :defer t
+  :init (global-tree-sitter-mode))
+(use-package tree-sitter-langs
+  :defer t
+  :after tree-sitter)
 #+end_src

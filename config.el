@@ -130,7 +130,30 @@
     "s" '(:ignore t:wk "Search")
     "s f" '(swiper :wk "Search on this file")
    )
+
+   (tt/leader-keys
+ "TAB"  '(:ignore t :which-key "Window Management")
+ "TAB 0" '(eyebrowse-switch-to-window-config-0 :which-key "Select Windown 0")
+ "TAB 1" '(eyebrowse-switch-to-window-config-1 :which-key "Select Window 1")
+ "TAB 2" '(eyebrowse-switch-to-window-config-2 :which-key "Select Window 2")
+ "TAB 3" '(eyebrowse-switch-to-window-config-3 :which-key "Select Window 3")
+ "TAB 4" '(eyebrowse-switch-to-window-config-4 :which-key "Select Window 4")
+ "TAB 5" '(eyebrowse-switch-to-window-config-5 :which-key "Select Window 5")
+ "TAB 6" '(eyebrowse-switch-to-window-config-6 :which-key "Select Window 6")
+ "TAB 7" '(eyebrowse-switch-to-window-config-7 :which-key "Select Window 7")
+ "TAB 8" '(eyebrowse-switch-to-window-config-8 :which-key "Select Window 8")
+ "TAB 9" '(eyebrowse-switch-to-window-config-9 :which-key "Select Window 9")
+ "TAB r" '(eyebrowse-rename-window-config :which-key "Rename Window")
+ "TAB n" '(eyebrowse-create-named-window-config :which-key "Create New Window")
+ "TAB TAB" '(eyebrowse-switch-to-window-config :which-key "Switch Window")
+ "TAB d" '(eyebrowse-close-window-config :which-key "Delete Window")
+ "TAB k" '(eyebrowse-next-window-config :which-key "Next Window")
+ "TAB j" '(eyebrowse-prev-window-config :which-key "Previous Window"))
 )
+
+(setq-default tab-width 2)
+
+(defalias 'yes-or-no-p 'y-or-n-p)
 
 ;; Expands to: (elpaca evil (use-package evil :demand t))
 (use-package evil
@@ -157,12 +180,15 @@
 (setq evil-insert-state-cursor '((bar . 2) "orange")
       evil-normal-state-cursor '(box "orange"))
 
-(use-package all-the-icons
-  :ensure t
-  :if (display-graphic-p))
+(use-package move-text)
 
-(use-package all-the-icons-dired
-  :hook (dired-mode . (lambda () (all-the-icons-dired-mode t))))
+(global-set-key (kbd "s-j") #'move-text-down)
+(global-set-key (kbd "s-k") #'move-text-up)
+
+(use-package eyebrowse
+  :config
+  (setq eyebrowse-new-workspace t)
+  (eyebrowse-mode 1))
 
 (setq backup-directory-alist '((".*" . "~/.Trash")))
 
@@ -498,3 +524,11 @@
 	  which-key-max-description-length 25
 	  which-key-allow-imprecise-window-fit nil
 	  which-key-separator " → " ))
+
+(use-package tsc)
+(use-package tree-sitter
+  :defer t
+  :init (global-tree-sitter-mode))
+(use-package tree-sitter-langs
+  :defer t
+  :after tree-sitter)
