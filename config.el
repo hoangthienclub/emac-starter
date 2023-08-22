@@ -266,7 +266,7 @@
   (general-evil-setup)
 
   ;; set up 'SPC' as the global leader key
-  (general-create-definer dt/leader-keys
+  (general-create-definer dqv/leader-key
       :states '(normal insert visual emacs)
       :keymaps 'override
       :prefix "SPC" ;; set leader
@@ -274,14 +274,14 @@
   (general-create-definer dqv/evil
       :states '(normal))) ;; access leader in insert mode
 
-  (dt/leader-keys
+  (dqv/leader-key
       "SPC" '(counsel-M-x :wk "Counsel M-x")
       "." '(find-file :wk "Find file")
       "f c" '((lambda () (interactive) (find-file "~/.emacs.d/config.org")) :wk "Edit emacs config")
       "f r" '(counsel-recentf :wk "Find recent files")
       "TAB TAB" '(comment-line :wk "Comment lines"))
 
-  (dt/leader-keys
+  (dqv/leader-key
       "d" '(:ignore t :wk "Dired")
       "d d" '(dired :wk "Open dired")
       "d j" '(dired-jump :wk "Dired jump to current")
@@ -289,7 +289,7 @@
       "d p" '(peep-dired :wk "Peep-dired"))
 
 
-  (dt/leader-keys
+  (dqv/leader-key
     "b" '(:ignore t :wk "Bookmarks/Buffers")
     "b c" '(clone-indirect-buffer :wk "Create indirect buffer copy in a split")
     "b C" '(clone-indirect-buffer-other-window :wk "Clone indirect buffer in new window")
@@ -307,7 +307,7 @@
     "b S" '(save-some-buffers :wk "Save multiple buffers")
     "b w" '(bookmark-save :wk "Save current bookmarks to bookmark file"))
 
-  (dt/leader-keys
+  (dqv/leader-key
     "t" '(:ignore t :wk "Toggle")
     "t e" '(eshell-toggle :wk "Toggle eshell")
     "t f" '(flycheck-mode :wk "Toggle flycheck")
@@ -317,14 +317,14 @@
     "t t" '(visual-line-mode :wk "Toggle truncated lines")
     "t v" '(vterm-toggle :wk "Toggle vterm"))
 
-  (dt/leader-keys
+  (dqv/leader-key
       "h r" '(:ignore t :wk "Reload")
       "h r r" '((lambda () (interactive)
                   (load-file "~/.emacs.d/init.el")
                   (ignore (elpaca-process-queues)))
               :wk "Reload emacs config"))
 
-  (dt/leader-keys
+  (dqv/leader-key
     "w" '(:ignore t :wk "Windows")
     ;; Window splits
     "w c" '(evil-window-delete :wk "Close window")
@@ -343,7 +343,7 @@
     "w K" '(buf-move-up :wk "Buffer move up")
     "w L" '(buf-move-right :wk "Buffer move right"))
 
-  (dt/leader-keys
+  (dqv/leader-key
       "s" '(:ignore t :wk "Search")
       "s f" '(swiper :wk "Search File"))
 
@@ -509,6 +509,34 @@
         "gc" #'evil-avy-goto-char-timer
         "gl" #'evil-avy-goto-line))
 
+(use-package yasnippet
+  :defer t
+  :straight (:build t)
+  :init
+  (yas-global-mode)
+  :hook ((prog-mode . yas-minor-mode)
+         (text-mode . yas-minor-mode)))
+
+(use-package yasnippet-snippets
+  :defer t
+  :after yasnippet
+  :straight (:build t))
+
+(use-package yatemplate
+  :defer t
+  :after yasnippet
+  :straight (:build t))
+
+(use-package ivy-yasnippet
+  :defer t
+  :after (ivy yasnippet)
+  :straight (:build t)
+  :general
+  (dqv/leader-key
+    :infix "i"
+    :packages 'ivy-yasnippet
+    "y" #'ivy-yasnippet))
+
 (use-package git-gutter-fringe
   :straight (:build t)
   :hook ((prog-mode     . git-gutter-mode)
@@ -524,3 +552,180 @@
   (set-face-foreground 'git-gutter:added "LightGreen")
   (set-face-foreground 'git-gutter:modified "LightGoldenrod")
   (set-face-foreground 'git-gutter:deleted "LightCoral"))
+
+(use-package tsc
+  :straight (:build t))
+(use-package tree-sitter
+  :defer t
+  :straight (:build t)
+  :init (global-tree-sitter-mode))
+(use-package tree-sitter-langs
+  :defer t
+  :after tree-sitter
+  :straight (:build t))
+
+(use-package emacsql-psql
+  :defer t
+  :after (emacsql)
+  :straight (:build t))
+
+(with-eval-after-load 'emacsql
+  (dqv/major-leader-key
+    :keymaps 'emacs-lisp-mode-map
+    :packages '(emacsql)
+    "E" #'emacsql-fix-vector-indentation))
+
+(use-package flycheck
+  :straight (:build t)
+  :defer t
+  :init
+  (global-flycheck-mode)
+  :config
+  (setq flycheck-emacs-lisp-load-path 'inherit)
+
+  ;; Rerunning checks on every newline is a mote excessive.
+  (delq 'new-line flycheck-check-syntax-automatically)
+  ;; And don’t recheck on idle as often
+  (setq flycheck-idle-change-delay 2.0)
+
+  ;; For the above functionality, check syntax in a buffer that you
+  ;; switched to on briefly. This allows “refreshing” the syntax check
+  ;; state for several buffers quickly after e.g. changing a config
+  ;; file.
+  (setq flycheck-buffer-switch-check-intermediate-buffers t)
+
+  ;; Display errors a little quicker (default is 0.9s)
+  (setq flycheck-display-errors-delay 0.2))
+
+(use-package ispell
+  :if (executable-find "aspell")
+  :defer t
+  :straight (:type built-in)
+  :config
+  (add-to-list 'ispell-skip-region-alist '(":\\(PROPERTIES\\|LOGBOOK\\):" . ":END:"))
+  (add-to-list 'ispell-skip-region-alist '("#\\+BEGIN_SRC" . "#\\+END_SRC"))
+  (add-to-list 'ispell-skip-region-alist '("#\\+BEGIN_EXAMPLE" . "#\\+END_EXAMPLE"))
+  (setq ispell-program-name "aspell"
+        ispell-extra-args   '("--sug-mode=ultra" "--run-together")
+        ispell-aspell-dict-dir (ispell-get-aspell-config-value "dict-dir")
+        ispell-aspell-data-dir (ispell-get-aspell-config-value "data-dir")
+        ispell-personal-dictionary (expand-file-name (concat "ispell/" ispell-dictionary ".pws")
+                                                     user-emacs-directory)))
+
+(use-package flyspell-correct
+  :defer t
+  :straight (:build t)
+  :general ([remap ispell-word] #'flyspell-correct-at-point)
+  :config
+  (require 'flyspell-correct-ivy nil t))
+
+(use-package flyspell-correct-ivy
+  :defer t
+  :straight (:build t)
+  :after flyspell-correct)
+
+(use-package flyspell-lazy
+  :defer t
+  :straight (:build t)
+  :after flyspell
+  :config
+  (setq flyspell-lazy-idle-seconds 1
+        flyspell-lazy-window-idle-seconds 3)
+  (flyspell-lazy-mode +1))
+
+(use-package lsp-mode
+  :defer t
+  :straight (:build t)
+  :init
+  (setq lsp-keymap-prefix "C-c l")
+  :hook ((c-mode          . lsp-deferred)
+         (c++-mode        . lsp-deferred)
+         (html-mode       . lsp-deferred)
+         (sh-mode         . lsp-deferred)
+         (rustic-mode     . lsp-deferred)
+         (go-mode         . lsp-deferred)
+         ;; (text-mode       . lsp-deferred)
+         (move-mode       . lsp-deferred)
+         (toml-mode       . lsp-deferred)
+         (sql-mode       . lsp-deferred)
+         (json-mode       . lsp-deferred)
+         (typescript-mode . lsp-deferred)
+         (lsp-mode        . lsp-enable-which-key-integration)
+         (lsp-mode        . lsp-ui-mode))
+  :commands (lsp lsp-deferred)
+  :custom
+  (lsp-idle-delay 0.6)
+  (lsp-use-plist t)
+  :config
+  (lsp-register-client
+   (make-lsp-client :new-connection (lsp-tramp-connection "shellcheck")
+                    :major-modes '(sh-mode)
+                    :remote? t
+                    :server-id 'she llcheck-remote)))
+
+(setq lsp-sqls-workspace-config-path nil)
+(setq lsp-enable-indentation nil)
+
+(use-package lsp-ui
+  :after lsp
+  :defer t
+  :straight (:build t)
+  :commands lsp-ui-mode
+  :custom
+  (lsp-ui-peek-always-show nil)
+  (lsp-ui-sideline-show-hover t)
+  (lsp-ui-doc-enable nil))
+
+(defun dqv/lsp-workspace-remove-missing-projects ()
+  (interactive)
+  (dolist (dead-project (seq-filter (lambda (x) (not (file-directory-p x))) (lsp-session-folders (lsp-session))))
+    (lsp-workspace-folders-remove dead-project)))
+
+(use-package lsp-ivy
+  :straight (:build t)
+  :defer t
+  :after lsp
+  :commands lsp-ivy-workspace-symbol)
+
+(defun my-lsp-with-neotree ()
+  (interactive)
+  (neotree-toggle)
+  (lsp))
+
+(use-package exec-path-from-shell
+  :defer t
+  :straight (:build t)
+  :init (exec-path-from-shell-initialize))
+
+(use-package consult-lsp
+  :defer t
+  :after lsp
+  :straight (:build t)
+  :general
+  (dqv/evil
+    :keymaps 'lsp-mode-map
+    [remap xref-find-apropos] #'consult-lsp-symbols))
+
+(use-package nginx-mode
+  :straight (:build t)
+  :defer t)
+
+(use-package company-nginx
+  :straight (company-nginx :build t
+                           :type git
+                           :host github
+                           :repo "emacsmirror/company-nginx")
+  :defer t
+  :config
+  (add-hook 'nginx-mode-hook (lambda ()
+                               (add-to-list 'company-backends #'company-nginx))))
+
+(defun beautify-json ()
+  (interactive)
+  (let ((b (if mark-active (min (point) (mark)) (point-min)))
+        (e (if mark-active (max (point) (mark)) (point-max))))
+    (shell-command-on-region b e
+     "python -mjson.tool" (current-buffer) t)))
+
+(use-package protobuf-mode
+  :mode "\\.proto3")
