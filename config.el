@@ -39,7 +39,7 @@
 (unless (package-installed-p 'autothemer)
   (package-refresh-contents)
   (package-install 'autothemer))
-  
+
 (add-to-list 'custom-theme-load-path (concat user-emacs-directory "themes/"))
 
 (use-package doom-themes
@@ -91,6 +91,27 @@
   (emojify-download-emojis-p t)
   :config
   (global-emojify-mode 1))
+
+(use-package dashboard
+  :ensure t
+  :init
+  (setq initial-buffer-choice 'dashboard-open)
+  (setq dashboard-set-heading-icons t)
+  (setq dashboard-set-file-icons t)
+  (setq dashboard-banner-logo-title "Emacs Is More Than A Text Editor!")
+  ;;(setq dashboard-startup-banner 'logo) ;; use standard emacs logo as banner
+  (setq dashboard-startup-banner "/Users/tranthien/.emacs.d/images/dtmacs-logo.png")  ;; use custom image as banner
+  (setq dashboard-center-content nil) ;; set to 't' for centered content
+  (setq dashboard-items '((recents . 5)
+                          (agenda . 5 )
+                          (bookmarks . 3)
+                          (projects . 3)
+                          (registers . 3)))
+  :custom
+  (dashboard-modify-heading-icons '((recents . "file-text")
+              (bookmarks . "book")))
+  :config
+  (dashboard-setup-startup-hook))
 
 (use-package evil
     :init      ;; tweak evil's configuration before loading it
@@ -183,3 +204,176 @@
       (org-babel-tangle))))
 
 (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
+
+(use-package which-key
+  :straight (:build t)
+  :defer t
+  :init
+    (which-key-mode 1)
+  :diminish
+  :config
+  (setq which-key-side-window-location 'bottom
+    which-key-sort-order #'which-key-key-order-alpha
+    which-key-allow-imprecise-window-fit nil
+    which-key-sort-uppercase-first nil
+    which-key-add-column-padding 1
+    which-key-max-display-columns nil
+    which-key-min-display-lines 6
+    which-key-side-window-slot -10
+    which-key-side-window-max-height 0.25
+    which-key-idle-delay 0.8
+    which-key-max-description-length 25
+    which-key-allow-imprecise-window-fit nil
+    which-key-separator " → " ))
+
+(use-package which-key-posframe
+  :ensure t
+  :config
+  (which-key-posframe-mode))
+
+(use-package general
+  :straight (:build t)
+  :init
+
+  (general-auto-unbind-keys)
+  :config
+  (general-evil-setup)
+
+  ;; set up 'SPC' as the global leader key
+  (general-create-definer dt/leader-keys
+      :states '(normal insert visual emacs)
+      :keymaps 'override
+      :prefix "SPC" ;; set leader
+      :global-prefix "M-SPC")) ;; access leader in insert mode
+
+  (dt/leader-keys
+      "SPC" '(counsel-M-x :wk "Counsel M-x")
+      "." '(find-file :wk "Find file")
+      "f c" '((lambda () (interactive) (find-file "~/.emacs.d/config.org")) :wk "Edit emacs config")
+      "f r" '(counsel-recentf :wk "Find recent files")
+      "TAB TAB" '(comment-line :wk "Comment lines"))
+
+  (dt/leader-keys
+    "b" '(:ignore t :wk "Bookmarks/Buffers")
+    "b c" '(clone-indirect-buffer :wk "Create indirect buffer copy in a split")
+    "b C" '(clone-indirect-buffer-other-window :wk "Clone indirect buffer in new window")
+    "b d" '(bookmark-delete :wk "Delete bookmark")
+    "b i" '(ibuffer :wk "Ibuffer")
+    "b k" '(kill-this-buffer :wk "Kill this buffer")
+    "b K" '(kill-some-buffers :wk "Kill multiple buffers")
+    "b l" '(list-bookmarks :wk "List bookmarks")
+    "b m" '(bookmark-set :wk "Set bookmark")
+    "b n" '(next-buffer :wk "Next buffer")
+    "b p" '(previous-buffer :wk "Previous buffer")
+    "b r" '(revert-buffer :wk "Reload buffer")
+    "b R" '(rename-buffer :wk "Rename buffer")
+    "b s" '(basic-save-buffer :wk "Save buffer")
+    "b S" '(save-some-buffers :wk "Save multiple buffers")
+    "b w" '(bookmark-save :wk "Save current bookmarks to bookmark file"))
+
+  (dt/leader-keys
+      "h r" '(:ignore t :wk "Reload")
+      "h r r" '((lambda () (interactive)
+                  (load-file "~/.emacs.d/init.el")
+                  (ignore (elpaca-process-queues)))
+              :wk "Reload emacs config"))
+
+(use-package company
+  :straight (:build t)
+  :defer t
+  :hook (company-mode . evil-normalize-keymaps)
+  :init (global-company-mode)
+  :config
+  (setq company-minimum-prefix-length     2
+        company-toolsip-limit             14
+        company-idle-delay                0.2
+        company-tooltip-align-annotations t
+        company-require-match             'never
+        company-global-modes              '(not erc-mode message-mode help-mode gud-mode)
+        company-frontends
+        '(company-pseudo-tooltip-frontend ; always show candidates in overlay tooltip
+          company-echo-metadata-frontend) ; show selected candidate docs in echo area
+        company-backends '(company-capf)
+        company-auto-commit         nil
+        company-auto-complete-chars nil
+        company-dabbrev-other-buffers nil
+        company-dabbrev-ignore-case nil
+        company-dabbrev-downcase    nil))
+
+(use-package ivy
+  :straight t
+  :defer t
+  :diminish
+  :bind (("C-s" . swiper))
+  :custom
+      (setq ivy-use-virtual-buffers t)
+      (setq ivy-count-format "(%d/%d) ")
+      (setq enable-recursive-minibuffers t)
+  :config
+  (ivy-mode 1)
+  (setq ivy-wrap                        t
+        ivy-height                      17
+        ivy-sort-max-size               50000
+        ivy-fixed-height-minibuffer     t
+        ivy-read-action-functions       #'ivy-hydra-read-action
+        ivy-read-action-format-function #'ivy-read-action-format-columns
+        projectile-completion-system    'ivy
+        ivy-on-del-error-function       #'ignore
+        ivy-use-selectable-prompt       t))
+
+(use-package ivy-prescient
+  :after ivy
+  :straight (:build t))
+
+(use-package all-the-icons-ivy
+  :straight (:build t)
+  :after (ivy all-the-icons)
+  :hook (after-init . all-the-icons-ivy-setup))
+
+(use-package ivy-posframe
+  :defer t
+  :after (:any ivy helpful)
+  :hook (ivy-mode . ivy-posframe-mode)
+  :straight (:build t)
+  :init
+  (ivy-posframe-mode 1)
+  :config
+  (setq ivy-fixed-height-minibuffer nil
+        ivy-posframe-border-width   10
+        ivy-posframe-parameters
+        `((min-width  . 90)
+          (min-height . ,ivy-height))))
+
+(use-package all-the-icons-ivy-rich
+  :ensure t
+  :init (all-the-icons-ivy-rich-mode 1))
+
+(use-package ivy-rich
+  :after ivy
+  :after counsel
+  :ensure t
+  :init (ivy-rich-mode 1) ;; this gets us descriptions in M-x.
+  :custom
+  (ivy-virtual-abbreviate 'full
+   ivy-rich-switch-buffer-align-virtual-buffer t
+   ivy-rich-path-style 'abbrev)
+  :config
+  (ivy-set-display-transformer 'ivy-switch-buffer
+                               'ivy-rich-switch-buffer-transformer))
+
+(use-package counsel
+  :straight (:build t)
+  :after ivy
+  :diminish
+  :config (counsel-mode))
+
+(use-package projectile
+  :straight (:build t)
+  :diminish projectile-mode
+  :custom ((projectile-completion-system 'ivy))
+  :init
+  (setq projectile-switch-project-action #'projectile-dired)
+  :config
+  (projectile-mode)
+  (add-to-list 'projectile-ignored-projects "~/")
+  (add-to-list 'projectile-globally-ignored-directories "^node_modules$"))
