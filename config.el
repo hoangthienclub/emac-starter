@@ -113,6 +113,21 @@
   :config
   (dashboard-setup-startup-hook))
 
+(use-package rainbow-mode
+  :diminish
+  :hook org-mode prog-mode)
+
+(use-package rainbow-delimiters
+  :straight (:build t)
+  :defer t
+  :hook (prog-mode . rainbow-delimiters-mode))
+
+(use-package info-colors
+  :straight (:build t)
+  :commands info-colors-fnontify-node
+  :hook (Info-selection . info-colors-fontify-node)
+  :hook (Info-mode      . mixed-pitch-mode))
+
 (use-package evil
     :init      ;; tweak evil's configuration before loading it
     (setq evil-want-integration t
@@ -127,6 +142,10 @@
     (setq evil-collection-mode-list '(dashboard dired ibuffer))
     (evil-collection-init))
   (use-package evil-tutor)
+
+(evil-global-set-key 'motion "j" 'evil-next-visual-line)
+(evil-global-set-key 'motion "k" 'evil-previous-visual-line)
+(evil-global-set-key 'motion "w" 'evil-avy-goto-word-1)
 
 (defun efs/org-mode-setup ()
   (org-indent-mode)
@@ -251,7 +270,9 @@
       :states '(normal insert visual emacs)
       :keymaps 'override
       :prefix "SPC" ;; set leader
-      :global-prefix "M-SPC")) ;; access leader in insert mode
+      :global-prefix "M-SPC")
+  (general-create-definer dqv/evil
+      :states '(normal))) ;; access leader in insert mode
 
   (dt/leader-keys
       "SPC" '(counsel-M-x :wk "Counsel M-x")
@@ -467,3 +488,39 @@
                  (setq word-wrap nil)
                  (make-local-variable 'auto-hscroll-mode)
                  (setq auto-hscroll-mode nil)))))
+
+(use-package avy
+  :defer t
+  :straight t
+  :config
+  (setq avy-keys           '(?a ?u ?i ?e ?c ?t ?s ?r ?n)
+         avy-dispatch-alist '((?x . avy-action-kill-move)
+                              (?X . avy-action-kill-stay)
+                              (?T . avy-action-teleport)
+                              (?m . avy-action-mark)
+                              (?C . avy-action-copy)
+                              (?y . avy-action-yank)
+                              (?Y . avy-action-yank-line)
+                              (?I . avy-action-ispell)
+                              (?z . avy-action-zap-to-char)))
+    :general
+    (dqv/evil
+        :pakages 'avy
+        "gc" #'evil-avy-goto-char-timer
+        "gl" #'evil-avy-goto-line))
+
+(use-package git-gutter-fringe
+  :straight (:build t)
+  :hook ((prog-mode     . git-gutter-mode)
+         (org-mode      . git-gutter-mode)
+         (markdown-mode . git-gutter-mode)
+         (latex-mode    . git-gutter-mode))
+  :config
+  (setq git-gutter:update-interval 2)
+  ;; These characters are used in terminal mode
+  (setq git-gutter:modified-sign "≡")
+  (setq git-gutter:added-sign "≡")
+  (setq git-gutter:deleted-sign "≡")
+  (set-face-foreground 'git-gutter:added "LightGreen")
+  (set-face-foreground 'git-gutter:modified "LightGoldenrod")
+  (set-face-foreground 'git-gutter:deleted "LightCoral"))

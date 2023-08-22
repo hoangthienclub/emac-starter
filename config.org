@@ -16,6 +16,9 @@
   - [[#theme][Theme]]
   - [[#font][Font]]
   - [[#dashboard][Dashboard]]
+  - [[#rainbow-mode][Rainbow Mode]]
+  - [[#rainbow-delimiters][Rainbow Delimiters]]
+  - [[#yall-want-some-more-colors][Y’all want some more COLORS?]]
 - [[#evil][Evil]]
   - [[#basic][Basic]]
   - [[#evil-define-keys][Evil Define Keys]]
@@ -37,6 +40,9 @@
   - [[#dired][Dired]]
   - [[#projectile][Projectile]]
   - [[#neotree][Neotree]]
+  - [[#avy][Avy]]
+- [[#code-application][Code Application]]
+  - [[#fringe][Fringe]]
 
 * Package Management
 ** Repositories
@@ -378,6 +384,32 @@ Emacs Dashboard is an extensible startup screen showing you recent files, bookma
   :config
   (dashboard-setup-startup-hook))
 #+end_src
+** Rainbow Mode
+Display the actual color as a background for any hex color value (ex. #ffffff).  The code block below enables rainbow-mode in all programming modes (prog-mode) as well as org-mode, which is why rainbow works in this document.
+
+#+begin_src emacs-lisp
+(use-package rainbow-mode
+  :diminish
+  :hook org-mode prog-mode)
+#+end_src
+
+** Rainbow Delimiters
+This makes Lisp especially more readable, but it’s also nice to have for any language that has delimiters like brackets too.
+#+begin_src emacs-lisp
+(use-package rainbow-delimiters
+  :straight (:build t)
+  :defer t
+  :hook (prog-mode . rainbow-delimiters-mode))
+#+end_src
+** Y’all want some more COLORS?
+It is possible to make info buffers much more colorful (and imo easier to read) with this simple package:
+#+begin_src emacs-lisp
+(use-package info-colors
+  :straight (:build t)
+  :commands info-colors-fnontify-node
+  :hook (Info-selection . info-colors-fontify-node)
+  :hook (Info-mode      . mixed-pitch-mode))
+#+end_src
 * Evil
 Evil is an extensible vi/vim layer for Emacs.  Because…let’s face it.  The Vim keybindings are just plain better.
 ** Basic
@@ -398,6 +430,11 @@ Evil is an extensible vi/vim layer for Emacs.  Because…let’s face it.  The V
   (use-package evil-tutor)
 #+end_src
 ** Evil Define Keys
+#+begin_src emacs-lisp
+(evil-global-set-key 'motion "j" 'evil-next-visual-line)
+(evil-global-set-key 'motion "k" 'evil-previous-visual-line)
+(evil-global-set-key 'motion "w" 'evil-avy-goto-word-1)
+#+end_src
 
 * Org-mode
 ** Basic Config
@@ -558,7 +595,9 @@ Org mode source blocks have some really weird and annoying default indentation b
         :states '(normal insert visual emacs)
         :keymaps 'override
         :prefix "SPC" ;; set leader
-        :global-prefix "M-SPC")) ;; access leader in insert mode
+        :global-prefix "M-SPC")
+    (general-create-definer dqv/evil
+        :states '(normal))) ;; access leader in insert mode
 
     (dt/leader-keys
         "SPC" '(counsel-M-x :wk "Counsel M-x")
@@ -818,4 +857,48 @@ Neotree is a file tree viewer.  When you open neotree, it jumps to the current f
 
 #+end_src
 
+#+end_src
+
+** Avy
+avy is a really convenient way of jumping around and performing actions on these selections, but I’ll need some configuration to make it eamon-compatible.
+#+begin_src emacs-lisp
+(use-package avy
+  :defer t
+  :straight t
+  :config
+  (setq avy-keys           '(?a ?u ?i ?e ?c ?t ?s ?r ?n)
+         avy-dispatch-alist '((?x . avy-action-kill-move)
+                              (?X . avy-action-kill-stay)
+                              (?T . avy-action-teleport)
+                              (?m . avy-action-mark)
+                              (?C . avy-action-copy)
+                              (?y . avy-action-yank)
+                              (?Y . avy-action-yank-line)
+                              (?I . avy-action-ispell)
+                              (?z . avy-action-zap-to-char)))
+    :general
+    (dqv/evil
+        :pakages 'avy
+        "gc" #'evil-avy-goto-char-timer
+        "gl" #'evil-avy-goto-line))
+#+end_src
+* Code Application
+** Fringe
+It’s nice to know which lines were modified since the last commit in a file.
+#+begin_src emacs-lisp
+(use-package git-gutter-fringe
+  :straight (:build t)
+  :hook ((prog-mode     . git-gutter-mode)
+         (org-mode      . git-gutter-mode)
+         (markdown-mode . git-gutter-mode)
+         (latex-mode    . git-gutter-mode))
+  :config
+  (setq git-gutter:update-interval 2)
+  ;; These characters are used in terminal mode
+  (setq git-gutter:modified-sign "≡")
+  (setq git-gutter:added-sign "≡")
+  (setq git-gutter:deleted-sign "≡")
+  (set-face-foreground 'git-gutter:added "LightGreen")
+  (set-face-foreground 'git-gutter:modified "LightGoldenrod")
+  (set-face-foreground 'git-gutter:deleted "LightCoral"))
 #+end_src
