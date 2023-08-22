@@ -12,10 +12,16 @@
 - [[#basic-configuration][Basic Configuration]]
   - [[#early-init][Early Init]]
   - [[#emacs-behavior][Emacs Behavior]]
+- [[#performance-upgrade][Performance Upgrade]]
+  - [[#emacs-startup][Emacs Startup]]
+  - [[#keep-emacsd-clean][Keep .emacs.d Clean]]
+- [[#personal-information][Personal Information]]
 - [[#graphical-user-interface-tweaks][Graphical User Interface Tweaks]]
   - [[#theme][Theme]]
   - [[#font][Font]]
+  - [[#cursor-evil][Cursor Evil]]
   - [[#dashboard][Dashboard]]
+  - [[#doom-modeline][Doom Modeline]]
   - [[#rainbow-mode][Rainbow Mode]]
   - [[#rainbow-delimiters][Rainbow Delimiters]]
   - [[#yall-want-some-more-colors][Y’all want some more COLORS?]]
@@ -260,55 +266,155 @@ The early init file is the file loaded before anything else in Emacs. This is wh
 *** Editing Text in Emacs
 Editing Text in Emacs
 I never want to keep trailing spaces in my files, which is why I’m doing this:
+
 #+begin_src emacs-lisp
 
 (add-hook 'before-save-hook #'whitespace-cleanup)
 (server-start)
 
 #+end_src
+
 I don’t understand why some people add two spaces behind a full stop, I sure don’t. Let’s tell Emacs.
-#+end_src
 I never want to keep trailing spaces in my files, which is why I’m doing this:
+
 #+begin_src emacs-lisp
 
 (setq-default sentence-end-double-space nil)
 
 #+end_src
+
 Lastly, I want the default mode for Emacs to be Emacs Lisp.
+
 #+begin_src emacs-lisp
 
 (setq-default initial-major-mode 'emacs-lisp-mode)
 
 #+end_src
+
 Default tab width
+
 #+begin_src emacs-lisp
 
 (setq-default tab-width 2)
 
 #+end_src
+
 *** Stay Clean, Emacs!
 It also loves to litter its ~init.el~ with custom variables here and there, but the thing is: I regenerate my ~init.el~ each time I tangle this file! How can I keep Emacs from adding stuff that will be almost immediately lost? Did someone say /custom file/?
+
 #+begin_src emacs-lisp
+
 (setq-default custom-file (expand-file-name ".custom.el" user-emacs-directory))
 (when (file-exists-p custom-file) ; Don’t forget to load it, we still need it
   (load custom-file))
+
 #+end_src
 
 *** Stay Polite, Emacs!
 When asking for our opinion on something, Emacs loves asking us to answer by “yes” or “no”, but *in full*! That’s very rude! Fortunately, we can fix this.
+
 #+begin_src emacs-lisp
+
 (defalias 'yes-or-no-p 'y-or-n-p)
+
 #+end_src
 
 This will make Emacs ask us for either hitting the ~y~ key for “yes”, or the ~n~ key for “no”. Much more polite!
-
 It is also very impolite to keep a certain version of a file in its buffer when said file has changed on disk. Let’s change this behavior:
+
 #+begin_src emacs-lisp
+
 (global-auto-revert-mode 1)
+
 #+end_src
 
 Much more polite! Note that if the buffer is modified and its changes haven’t been saved, it will not automatically revert the buffer and your unsaved changes won’t be lost. Very polite!
 
+*** A better custom variable setter
+Something people often forget about custom variables in Elisp is they can have a custom setter that will run some code if we set the variable properly with ~customize-set-variable~, so ~setq~ shouldn’t be the user’s choice by default. But repeatedly writing ~customize-set-variable~ can get tiring and boring. So why not take the best of both world and create ~csetq~, a ~setq~ that uses ~customize-set-variable~ under the hood while it keeps a syntax similar to the one ~setq~ uses?
+
+#+begin_src emacs-lisp
+(defmacro csetq (&rest forms)
+  "Bind each custom variable FORM to the value of its VAL.
+
+FORMS is a list of pairs of values [FORM VAL].
+`customize-set-variable' is called sequentially on each pair
+contained in FORMS. This means `csetq' has a similar behavior as
+`setq': each VAL expression is evaluated sequentially, i.e., the
+first VAL is evaluated before the second, and so on. This means
+the value of the first FORM can be used to set the second FORM.
+
+The return value of `csetq' is the value of the last VAL.
+
+\(fn [FORM VAL]...)"
+  (declare (debug (&rest sexp form))
+           (indent 1))
+  ;; Check if we have an even number of arguments
+  (when (= (mod (length forms) 2) 1)
+    (signal 'wrong-number-of-arguments (list 'csetq (1+ (length forms)))))
+  ;; Transform FORMS into a list of pairs (FORM . VALUE)
+  (let (sexps)
+    (while forms
+      (let ((form  (pop forms))
+            (value (pop forms)))
+        (push `(customize-set-variable ',form ,value)
+              sexps)))
+    `(progn ,@(nreverse sexps))))
+#+end_src
+
+*** Extend ~add-to-list
+One function I find missing regarding ~add-to-list~ is ~add-all-to-list~ so I can add multiple elements to a list at once. Instead, with vanilla Emacs, I have to repeatedly call ~add-to-list~. That’s not very clean. Let’s declare this missing function:
+
+#+begin_src emacs-lisp
+(defun add-all-to-list (list-var elements &optional append compare-fn)
+  "Add ELEMENTS to the value of LIST-VAR if it isn’t there yet.
+
+ELEMENTS is a list of values. For documentation on the variables
+APPEND and COMPARE-FN, see `add-to-list'."
+  (let (return)
+    (dolist (elt elements return)
+      (setq return (add-to-list list-var elt append compare-fn)))))
+#+end_src
+
+* Performance Upgrade
+** Emacs Startup
+Tính toán garbage collections khi khởi động Emacs và thời gian loaded.
+
+#+begin_src emacs-lisp
+
+;; Profile emacs startup
+(add-hook 'emacs-startup-hook
+        (lambda ()
+        (message "*** Emacs loaded in %s with %d garbage collections."
+                    (format "%.2f seconds"
+                            (float-time
+                            (time-subtract after-init-time before-init-time)))
+                    gcs-done)))
+
+#+end_src
+
+** Keep .emacs.d Clean
+#+begin_src emacs-lisp
+
+;; Keep customization settings in a temporary file (thanks Ambrevar!)
+(setq custom-file
+      (if (boundp 'server-socket-dir)
+          (expand-file-name "custom.el" server-socket-dir)
+        (expand-file-name (format "emacs-custom-%s.el" (user-uid)) temporary-file-directory)))
+(load custom-file t)
+
+#+end_src
+* Personal Information
+Emacs needs to know its master! For various reasons by the way, some packages rely of these variables to know who it is talking to or dealing with, such as mu4e which will guess who you are if you haven’t set it up correctly.
+
+#+begin_src emacs-lisp
+
+(setq user-full-name       "Tran Hoang Thien"
+      user-real-login-name "Tran Hoang Thien"
+      user-login-name      "hoangthienclub"
+      user-mail-address    "thien301194@gmail.com")
+
+#+end_src
 * Graphical User Interface Tweaks
 ** Theme
 You may have noticed I use the Nord theme pretty much everywhere on my computer, why not Emacs? In my opinion, its aurora variant is nicer than the default Nord theme since it is richer in colors — just a personal preference.
@@ -378,6 +484,13 @@ You may have noticed I use the Nord theme pretty much everywhere on my computer,
     (global-emojify-mode 1))
 #+end_src
 
+** Cursor Evil
+#+begin_src emacs-lisp
+
+(setq evil-insert-state-cursor '((bar . 2) "orange")
+      evil-normal-state-cursor '(box "orange"))
+
+#+end_src
 ** Dashboard
 Emacs Dashboard is an extensible startup screen showing you recent files, bookmarks, agenda items and an Emacs banner.
 #+begin_src emacs-lisp
@@ -401,6 +514,64 @@ Emacs Dashboard is an extensible startup screen showing you recent files, bookma
               (bookmarks . "book")))
   :config
   (dashboard-setup-startup-hook))
+#+end_src
+** Doom Modeline
+The modeline is the bottom status bar that appears in Emacs windows.  While you can create your own custom modeline, why go to the trouble when Doom Emacs already has a nice modeline package available.  For more information on what is available to configure in the Doom modeline, check out: Doom Modeline
+
+#+begin_src emacs-lisp
+
+(use-package doom-modeline
+  :straight t
+  :custom
+  (doom-modeline-height 35)
+  (doom-modeline-bar-width 8)
+  (doom-modeline-time-icon nil)
+  (doom-modeline-buffer-encoding 'nondefault)
+  (doom-modeline-unicode-fallback t)
+  (doom-modeline-bar-inactive nil)
+  :config
+  ;; FIX Add some padding to the right
+  (doom-modeline-def-modeline 'main
+    '(bar workspace-name window-number modals matches follow buffer-info
+      remote-host buffer-position word-count parrot selection-info)
+    '(objed-state misc-info persp-name battery grip irc mu4e gnus github debug
+      repl lsp minor-modes input-method indent-info buffer-encoding major-mode
+      process vcs checker time "   ")))
+(setq evil-normal-state-tag   (propertize "[Normal]" 'face '((:background "green" :foreground "black")))
+      evil-emacs-state-tag    (propertize "[Emacs]" 'face '((:background "orange" :foreground "black")))
+      evil-insert-state-tag   (propertize "[Insert]" 'face '((:background "red") :foreground "white"))
+      evil-motion-state-tag   (propertize "[Motion]" 'face '((:background "blue") :foreground "white"))
+      evil-visual-state-tag   (propertize "[Visual]" 'face '((:background "yellow" :foreground "black")))
+      evil-operator-state-tag (propertize "[Operator]" 'face '((:background "purple"))))
+
+#+end_src
+
+I sometimes use Emacs in fullscreen, meaning my usual taskbar will be hidden. This is why I want the current date and time to be displayed, in an ISO-8601 style, although not exactly ISO-8601 (this is the best time format, fight me).
+
+#+begin_src emacs-lisp
+
+(require 'time)
+(setq display-time-format "%Y-%m-%d %H:%M")
+(display-time-mode 1) ; display time in modeline
+
+#+end_src
+
+Column number
+
+#+begin_src emacs-lisp
+
+(column-number-mode)
+
+;; Enable line numbers for some modes
+(dolist (mode '(text-mode-hook
+                prog-mode-hook
+                conf-mode-hook))
+  (add-hook mode (lambda () (display-line-numbers-mode 1))))
+
+;; Override some modes which derive from the above
+(dolist (mode '(org-mode-hook))
+  (add-hook mode (lambda () (display-line-numbers-mode 0))))
+
 #+end_src
 ** Rainbow Mode
 Display the actual color as a background for any hex color value (ex. #ffffff).  The code block below enables rainbow-mode in all programming modes (prog-mode) as well as org-mode, which is why rainbow works in this document.
@@ -505,7 +676,7 @@ Evil is an extensible vi/vim layer for Emacs.  Because…let’s face it.  The V
   (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
 
 (defun efs/org-mode-visual-fill ()
-  (setq visual-fill-column-width 100
+  (setq visual-fill-column-width 150
         visual-fill-column-center-text t)
   (visual-fill-column-mode 1))
 
@@ -570,14 +741,13 @@ Org mode source blocks have some really weird and annoying default indentation b
 * General Keybindings
 ** Which Key
 #+begin_src emacs-lisp
-  (use-package which-key
-    :straight (:build t)
-    :defer t
-    :init
-      (which-key-mode 1)
-    :diminish
-    :config
-    (setq which-key-side-window-location 'bottom
+(use-package which-key
+  :straight (:build t)
+  :defer t
+  :init (which-key-mode)
+  :diminish which-key-mode
+  :config
+  (setq which-key-side-window-location 'bottom
       which-key-sort-order #'which-key-key-order-alpha
       which-key-allow-imprecise-window-fit nil
       which-key-sort-uppercase-first nil
@@ -591,10 +761,11 @@ Org mode source blocks have some really weird and annoying default indentation b
       which-key-allow-imprecise-window-fit nil
       which-key-separator " → " ))
 
-  (use-package which-key-posframe
-    :ensure t
-    :config
-    (which-key-posframe-mode))
+(use-package which-key-posframe
+  :ensure t
+  :config
+  (which-key-posframe-mode))
+
 #+end_src
 ** Keybindings
 #+begin_src emacs-lisp

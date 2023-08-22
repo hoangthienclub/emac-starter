@@ -36,6 +36,63 @@
 
 (global-auto-revert-mode 1)
 
+(defmacro csetq (&rest forms)
+  "Bind each custom variable FORM to the value of its VAL.
+
+FORMS is a list of pairs of values [FORM VAL].
+`customize-set-variable' is called sequentially on each pair
+contained in FORMS. This means `csetq' has a similar behavior as
+`setq': each VAL expression is evaluated sequentially, i.e., the
+first VAL is evaluated before the second, and so on. This means
+the value of the first FORM can be used to set the second FORM.
+
+The return value of `csetq' is the value of the last VAL.
+
+\(fn [FORM VAL]...)"
+  (declare (debug (&rest sexp form))
+           (indent 1))
+  ;; Check if we have an even number of arguments
+  (when (= (mod (length forms) 2) 1)
+    (signal 'wrong-number-of-arguments (list 'csetq (1+ (length forms)))))
+  ;; Transform FORMS into a list of pairs (FORM . VALUE)
+  (let (sexps)
+    (while forms
+      (let ((form  (pop forms))
+            (value (pop forms)))
+        (push `(customize-set-variable ',form ,value)
+              sexps)))
+    `(progn ,@(nreverse sexps))))
+
+(defun add-all-to-list (list-var elements &optional append compare-fn)
+  "Add ELEMENTS to the value of LIST-VAR if it isn’t there yet.
+
+ELEMENTS is a list of values. For documentation on the variables
+APPEND and COMPARE-FN, see `add-to-list'."
+  (let (return)
+    (dolist (elt elements return)
+      (setq return (add-to-list list-var elt append compare-fn)))))
+
+;; Profile emacs startup
+(add-hook 'emacs-startup-hook
+        (lambda ()
+        (message "*** Emacs loaded in %s with %d garbage collections."
+                    (format "%.2f seconds"
+                            (float-time
+                            (time-subtract after-init-time before-init-time)))
+                    gcs-done)))
+
+;; Keep customization settings in a temporary file (thanks Ambrevar!)
+(setq custom-file
+      (if (boundp 'server-socket-dir)
+          (expand-file-name "custom.el" server-socket-dir)
+        (expand-file-name (format "emacs-custom-%s.el" (user-uid)) temporary-file-directory)))
+(load custom-file t)
+
+(setq user-full-name       "Tran Hoang Thien"
+      user-real-login-name "Tran Hoang Thien"
+      user-login-name      "hoangthienclub"
+      user-mail-address    "thien301194@gmail.com")
+
 (unless (package-installed-p 'autothemer)
   (package-refresh-contents)
   (package-install 'autothemer))
@@ -92,6 +149,9 @@
   :config
   (global-emojify-mode 1))
 
+(setq evil-insert-state-cursor '((bar . 2) "orange")
+      evil-normal-state-cursor '(box "orange"))
+
 (use-package dashboard
   :ensure t
   :init
@@ -112,6 +172,46 @@
               (bookmarks . "book")))
   :config
   (dashboard-setup-startup-hook))
+
+(use-package doom-modeline
+  :straight t
+  :custom
+  (doom-modeline-height 35)
+  (doom-modeline-bar-width 8)
+  (doom-modeline-time-icon nil)
+  (doom-modeline-buffer-encoding 'nondefault)
+  (doom-modeline-unicode-fallback t)
+  (doom-modeline-bar-inactive nil)
+  :config
+  ;; FIX Add some padding to the right
+  (doom-modeline-def-modeline 'main
+    '(bar workspace-name window-number modals matches follow buffer-info
+      remote-host buffer-position word-count parrot selection-info)
+    '(objed-state misc-info persp-name battery grip irc mu4e gnus github debug
+      repl lsp minor-modes input-method indent-info buffer-encoding major-mode
+      process vcs checker time "   ")))
+(setq evil-normal-state-tag   (propertize "[Normal]" 'face '((:background "green" :foreground "black")))
+      evil-emacs-state-tag    (propertize "[Emacs]" 'face '((:background "orange" :foreground "black")))
+      evil-insert-state-tag   (propertize "[Insert]" 'face '((:background "red") :foreground "white"))
+      evil-motion-state-tag   (propertize "[Motion]" 'face '((:background "blue") :foreground "white"))
+      evil-visual-state-tag   (propertize "[Visual]" 'face '((:background "yellow" :foreground "black")))
+      evil-operator-state-tag (propertize "[Operator]" 'face '((:background "purple"))))
+
+(require 'time)
+(setq display-time-format "%Y-%m-%d %H:%M")
+(display-time-mode 1) ; display time in modeline
+
+(column-number-mode)
+
+;; Enable line numbers for some modes
+(dolist (mode '(text-mode-hook
+                prog-mode-hook
+                conf-mode-hook))
+  (add-hook mode (lambda () (display-line-numbers-mode 1))))
+
+;; Override some modes which derive from the above
+(dolist (mode '(org-mode-hook))
+  (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
 (use-package rainbow-mode
   :diminish
@@ -194,7 +294,7 @@
   (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
 
 (defun efs/org-mode-visual-fill ()
-  (setq visual-fill-column-width 100
+  (setq visual-fill-column-width 150
         visual-fill-column-center-text t)
   (visual-fill-column-mode 1))
 
@@ -234,27 +334,40 @@
 (use-package which-key
   :straight (:build t)
   :defer t
-  :init
-    (which-key-mode 1)
-  :diminish
+  :init (which-key-mode)
+  :diminish which-key-mode
   :config
   (setq which-key-side-window-location 'bottom
-    which-key-sort-order #'which-key-key-order-alpha
-    which-key-allow-imprecise-window-fit nil
-    which-key-sort-uppercase-first nil
-    which-key-add-column-padding 1
-    which-key-max-display-columns nil
-    which-key-min-display-lines 6
-    which-key-side-window-slot -10
-    which-key-side-window-max-height 0.25
-    which-key-idle-delay 0.8
-    which-key-max-description-length 25
-    which-key-allow-imprecise-window-fit nil
-    which-key-separator " → " ))
+      which-key-sort-order #'which-key-key-order-alpha
+      which-key-allow-imprecise-window-fit nil
+      which-key-sort-uppercase-first nil
+      which-key-add-column-padding 1
+      which-key-max-display-columns nil
+      which-key-min-display-lines 6
+      which-key-side-window-slot -10
+      which-key-side-window-max-height 0.25
+      which-key-idle-delay 0.8
+      which-key-max-description-length 25
+      which-key-allow-imprecise-window-fit nil
+      which-key-separator " → " ))
 
-(use-package which-key-posframe
+ (use-package which-key-posframe
   :ensure t
   :config
+  (setq which-key-posframe-parameters
+         '((left-fringe . 20)   ; Adjust left padding
+          (right-fringe . 20)  ; Adjust right padding
+          (internal-border-width . 100))) ; Adjust internal padding
+  (setq posframe-style
+        '((top . 20)                 ; Margin at the top
+          (left . 0)
+          (width . auto)
+          (height . auto)
+          (min-height . 0)          ; No bottom margin
+          (internal-border-width . 8)
+          (background-color . "#222")
+          (foreground-color . "#ddd")
+          (font . "Monospace-10")))
   (which-key-posframe-mode))
 
 (use-package general
