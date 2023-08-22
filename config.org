@@ -57,6 +57,7 @@
   - [[#javascript][Javascript]]
   - [[#typescript][Typescript]]
   - [[#golang][Golang]]
+  - [[#yaml][Yaml]]
 - [[#others][Others]]
   - [[#beauty-json][Beauty Json]]
   - [[#protobuf][Protobuf]]
@@ -1234,7 +1235,6 @@ We then also have an autocompletion package that adds to company the Nginx synta
     "f" #'json-pretty-print-buffer))
 #+end_src
 * General Programming Languages
-
 ** Web programming
 [[https://emmet.io/][Emmet]] is a powerful templating engine that can generate through simple CSS-like expression some HTML so you don’t have to write everything by hand.
 #+begin_src emacs-lisp
@@ -1564,6 +1564,12 @@ Tide enabled interactivity with Typescript.
 (defun eglot-format-buffer-on-save ()
   (add-hook 'before-save-hook #'eglot-format-buffer -10 t))
 (add-hook 'go-mode-hook #'eglot-format-buffer-on-save)
+#+end_src
+
+** Yaml
+#+begin_src emacs-lisp
+(use-package yaml-mode
+  :ensure t)
 #+end_src
 * Others
 ** Beauty Json

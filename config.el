@@ -364,6 +364,7 @@
     "p" '(:ignore t:wl "Projectile")
     "p a" '(projectile-add-known-project :wk "Add Project")
     "p s" '(projectile-switch-project :wk "Switch Project")
+    "p f" '(counsel-projectile-find-file :wk "Find File")
     "p r" '(projectile-remove-known-project :wk "Remove Known Project"))
 
 (use-package company
@@ -1059,6 +1060,9 @@
 (defun eglot-format-buffer-on-save ()
   (add-hook 'before-save-hook #'eglot-format-buffer -10 t))
 (add-hook 'go-mode-hook #'eglot-format-buffer-on-save)
+
+(use-package yaml-mode
+  :ensure t)
 
 (defun beautify-json ()
   (interactive)
