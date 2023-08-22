@@ -34,7 +34,9 @@
   - [[#code-autocompletion][Code Autocompletion]]
   - [[#ivy][Ivy]]
   - [[#counsel][Counsel]]
+  - [[#dired][Dired]]
   - [[#projectile][Projectile]]
+  - [[#neotree][Neotree]]
 
 * Package Management
 ** Repositories
@@ -566,6 +568,14 @@ Org mode source blocks have some really weird and annoying default indentation b
         "TAB TAB" '(comment-line :wk "Comment lines"))
 
     (dt/leader-keys
+        "d" '(:ignore t :wk "Dired")
+        "d d" '(dired :wk "Open dired")
+        "d j" '(dired-jump :wk "Dired jump to current")
+        "d n" '(neotree-dir :wk "Open directory in neotree")
+        "d p" '(peep-dired :wk "Peep-dired"))
+
+
+    (dt/leader-keys
       "b" '(:ignore t :wk "Bookmarks/Buffers")
       "b c" '(clone-indirect-buffer :wk "Create indirect buffer copy in a split")
       "b C" '(clone-indirect-buffer-other-window :wk "Clone indirect buffer in new window")
@@ -619,6 +629,9 @@ Org mode source blocks have some really weird and annoying default indentation b
       "w K" '(buf-move-up :wk "Buffer move up")
       "w L" '(buf-move-right :wk "Buffer move right"))
 
+    (dt/leader-keys
+        "s" '(:ignore t :wk "Search")
+        "s f" '(swiper :wk "Search File"))
 #+end_src
 
 * Packages Configuration
@@ -734,6 +747,35 @@ I could almost merge this chapter with the previous one since counsel is a packa
     :config (counsel-mode))
 #+end_src
 
+** Dired
+#+begin_src emacs-lisp
+(use-package dired-open
+  :config
+  (setq dired-open-extensions '(("gif" . "sxiv")
+                                ("jpg" . "sxiv")
+                                ("png" . "sxiv")
+                                ("mkv" . "mpv")
+                                ("mp4" . "mpv"))))
+
+(use-package peep-dired
+  :after dired
+  :hook (evil-normalize-keymaps . peep-dired-hook)
+  :config
+    (evil-define-key 'normal dired-mode-map (kbd "h") 'dired-up-directory)
+    (evil-define-key 'normal dired-mode-map (kbd "l") 'dired-open-file) ; use dired-find-file instead if not using dired-open package
+    (evil-define-key 'normal peep-dired-mode-map (kbd "j") 'peep-dired-next-file)
+    (evil-define-key 'normal peep-dired-mode-map (kbd "k") 'peep-dired-prev-file)
+)
+
+(use-package all-the-icons
+  :ensure t
+  :if (display-graphic-p))
+
+(use-package all-the-icons-dired
+  :hook (dired-mode . (lambda () (all-the-icons-dired-mode t))))
+#+end_src
+
+#+end_src
 
 ** Projectile
 #+begin_src emacs-lisp
@@ -748,3 +790,32 @@ I could almost merge this chapter with the previous one since counsel is a packa
   (add-to-list 'projectile-ignored-projects "~/")
   (add-to-list 'projectile-globally-ignored-directories "^node_modules$"))
  #+end_src
+
+** Neotree
+Neotree is a file tree viewer.  When you open neotree, it jumps to the current file thanks to neo-smart-open.  The neo-window-fixed-size setting makes the neotree width be adjustable.  NeoTree provides following themes: classic, ascii, arrow, icons, and nerd.  Theme can be config'd by setting "two" themes for neo-theme: one for the GUI and one for the terminal.  I like to use 'SPC t' for 'toggle' keybindings, so I have used 'SPC t n' for toggle-neotree.
+| COMMAND        | DESCRIPTION               | KEYBINDING |
+|----------------+---------------------------+------------|
+| neotree-toggle | /Toggle neotree/            | SPC t n    |
+| neotree- dir   | /Open directory in neotree/ | SPC d n    |
+
+#+begin_src emacs-lisp
+(use-package neotree
+  :config
+  (setq neo-smart-open t
+        neo-show-hidden-files t
+        neo-window-width 55
+        neo-window-fixed-size nil
+        inhibit-compacting-font-caches t
+        projectile-switch-project-action 'neotree-projectile-action)
+        ;; truncate long file names in neotree
+        (add-hook 'neo-after-create-hook
+           #'(lambda (_)
+               (with-current-buffer (get-buffer neo-buffer-name)
+                 (setq truncate-lines t)
+                 (setq word-wrap nil)
+                 (make-local-variable 'auto-hscroll-mode)
+                 (setq auto-hscroll-mode nil)))))
+
+#+end_src
+
+#+end_src
