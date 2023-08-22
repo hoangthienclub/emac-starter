@@ -1091,7 +1091,7 @@ A really cool tool in Emacs for manipulating databases is emacsql. It’s able t
    (make-lsp-client :new-connection (lsp-tramp-connection "shellcheck")
                     :major-modes '(sh-mode)
                     :remote? t
-                    :server-id 'she llcheck-remote)))
+                    :server-id 'shellcheck-remote)))
 
 (setq lsp-sqls-workspace-config-path nil)
 (setq lsp-enable-indentation nil)
@@ -1209,6 +1209,164 @@ We then also have an autocompletion package that adds to company the Nginx synta
     "f" #'json-pretty-print-buffer))
 #+end_src
 * General Programming Languages
+
+** Web programming
+[[https://emmet.io/][Emmet]] is a powerful templating engine that can generate through simple CSS-like expression some HTML so you don’t have to write everything by hand.
+#+begin_src emacs-lisp
+(use-package emmet-mode
+  :straight (:build t)
+  :defer t
+  :hook ((css-mode  . emmet-mode)
+         (html-mode . emmet-mode)
+         (web-mode  . emmet-mode)
+         (sass-mode . emmet-mode)
+         (scss-mode . emmet-mode)
+         (web-mode  . emmet-mode))
+  :config
+  (general-define-key
+   :keymaps 'emmet-mode-keymap
+   "M-RET" #'emmet-expand-yas)
+  (dqv/major-leader-key
+    :keymaps 'web-mode-map
+    :packages '(web-mode emmet-mode)
+    "e" '(:ignore t :which-key "emmet")
+    "ee" #'emmet-expand-line
+    "ep" #'emmet-preview
+    "eP" #'emmet-preview-mode
+    "ew" #'emmet-wrap-with-markup))
+#+end_src
+
+Impatient mode serves web buffers live over HTTP so you can see your editions as you type them.
+#+begin_src emacs-lisp
+(use-package impatient-mode
+  :straight (:build t)
+  :defer t)
+#+end_src
+
+Web mode is a sort of hybrid major mode that allows editing several languages in the same buffer, mainly HTML, CSS, and Javascript.
+#+begin_src emacs-lisp
+(use-package web-mode
+  :defer t
+  :straight (:build t)
+  :hook html-mode
+  :hook (web-mode . prettier-js-mode)
+  :hook (web-mode . lsp-deferred)
+  :mode (("\\.phtml\\'"      . web-mode)
+         ("\\.tpl\\.php\\'"  . web-mode)
+         ("\\.twig\\'"       . web-mode)
+         ("\\.xml\\'"        . web-mode)
+         ("\\.html\\'"       . web-mode)
+         ("\\.htm\\'"        . web-mode)
+         ("\\.[gj]sp\\'"     . web-mode)
+         ("\\.as[cp]x?\\'"   . web-mode)
+         ("\\.eex\\'"        . web-mode)
+         ("\\.erb\\'"        . web-mode)
+         ("\\.mustache\\'"   . web-mode)
+         ("\\.handlebars\\'" . web-mode)
+         ("\\.hbs\\'"        . web-mode)
+         ("\\.eco\\'"        . web-mode)
+         ("\\.ejs\\'"        . web-mode)
+         ("\\.svelte\\'"     . web-mode)
+         ("\\.ctp\\'"        . web-mode)
+         ("\\.djhtml\\'"     . web-mode)
+         ("\\.vue\\'"        . web-mode))
+  :config
+  (csetq web-mode-markup-indent-offset 2
+         web-mode-code-indent-offset   2
+         web-mode-css-indent-offset    2
+         web-mode-style-padding        0
+         web-mode-script-padding       0)
+  :general
+  (dqv/major-leader-key
+   :keymaps 'web-mode-map
+   :packages 'web-mode
+   "="  '(:ignore t :which-key "format")
+   "E"  '(:ignore t :which-key "errors")
+   "El" #'web-mode-dom-errors-show
+   "gb" #'web-mode-element-beginning
+   "g"  '(:ignore t :which-key "goto")
+   "gc" #'web-mode-element-child
+   "gp" #'web-mode-element-parent
+   "gs" #'web-mode-element-sibling-next
+   "h"  '(:ignore t :which-key "dom")
+   "hp" #'web-mode-dom-xpath
+   "r"  '(:ignore t :which-key "refactor")
+   "j"  '(web-mode-tag-match :which-key "Jump Match")
+   "rc" #'web-mode-element-clone
+   "rd" #'web-mode-element-vanish
+   "rk" #'web-mode-element-kill
+   "rr" #'web-mode-element-rename
+   "rw" #'web-mode-element-wrap
+   "z"  #'web-mode-fold-or-unfold)
+  (dqv/major-leader-key
+    :keymaps 'web-mode-map
+    :packages '(lsp-mode web-mode)
+    "l" '(:keymap lsp-command-map :which-key "lsp")))
+#+end_src
+
+Auto-completion for ~emmet-mode~, ~html-mode~, and ~web-mode~.
+#+begin_src emacs-lisp
+(use-package company-web
+  :defer t
+  :straight (:build t)
+  :after (emmet-mode web-mode))
+#+end_src
+
+** CSS
+Let’s customize a bit the built-in CSS mode.
+#+begin_src emacs-lisp
+(use-package css-mode
+  :defer t
+  :straight (:type built-in)
+  :hook (css-mode . smartparens-mode)
+  :hook (css-mode . lsp-deferred)
+  :hook (scss-mode . prettier-js-mode)
+  :init
+  (put 'css-indent-offset 'safe-local-variable #'integerp)
+  :general
+  (dqv/major-leader-key
+    :keymaps 'css-mode-map
+    :packages 'css-mode
+    "=" '(:ignore :which-key "format")
+    "g" '(:ignore :which-key "goto")))
+#+end_src
+
+SCSS is much nicer to use than pure CSS in my opinion, so let’s add a mode for that.
+#+begin_src emacs-lisp
+(use-package scss-mode
+  :straight (:build t)
+  :hook (scss-mode . smartparens-mode)
+  :hook (scss-mode . lsp-deferred)
+  :hook (scss-mode . prettier-js-mode)
+  :defer t
+  :mode "\\.scss\\'")
+#+end_src
+
+And let’s add some autocompletion for CSS.
+#+begin_src emacs-lisp
+(use-package counsel-css
+  :straight (:build t)
+  :defer t
+  :init
+  (cl-loop for (mode-map . mode-hook) in '((css-mode-map  . css-mode-hook)
+                                           (scss-mode-map . scss-mode-hook))
+           do (add-hook mode-hook #'counsel-css-imenu-setup)
+           (dqv/major-leader-key
+            :keymaps mode-map
+            "gh" #'counsel-css)))
+#+end_src
+
+For some reason, although it is built-in, ~less-css-mode~ does not activate when I open ~.less~ files by default. Let’s fix that.
+#+begin_src emacs-lisp
+(use-package less-css-mode
+  :straight  (:type built-in)
+  :defer t
+  :mode "\\.less\\'"
+  :hook (less-css-mode . smartparens-mode)
+  :hook (less-css-mode . lsp-deferred)
+  :hook (less-css-mode . prettier-js-mode))
+#+end_src
+
 ** Javascript
 javascript-mode is meh at best, while rjsx-mode (Real JSX) is much better: it supports both Javascript and .jsx files for React and Next.JS.
 #+begin_src emacs-lisp
