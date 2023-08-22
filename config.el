@@ -226,6 +226,19 @@ APPEND and COMPARE-FN, see `add-to-list'."
   :straight (:build t)
   :defer t)
 
+(defhydra windows-adjust-size ()
+  "
+^Zoom^                                ^Other
+^^^^^^^-----------------------------------------
+[_j_/_k_] shrink/enlarge vertically   [_q_] quit
+[_l_/_h_] shrink/enlarge horizontally
+"
+  ("q" nil :exit t)
+  ("l" shrink-window-horizontally)
+  ("j" enlarge-window)
+  ("k" shrink-window)
+  ("h" enlarge-window-horizontally))
+
 (use-package info-colors
   :straight (:build t)
   :commands info-colors-fnontify-node
@@ -461,10 +474,12 @@ APPEND and COMPARE-FN, see `add-to-list'."
 (dqv/leader-key
     "w" '(:ignore t :wk "Windows")
     ;; Window splits
-    "w c" '(evil-window-delete :wk "Close window")
+    "w c" '(kill-buffer-and-delete-window :wk "Kill & Delete")
+    "w d" '(delete-window :wk "Delete window")
     "w n" '(evil-window-new :wk "New window")
-    "w s" '(evil-window-split :wk "Horizontal split window")
-    "w v" '(evil-window-vsplit :wk "Vertical split window")
+    "w s" '(split-window-below-and-focus :wk "Horizontal split window")
+    "w v" '(split-window-right-and-focus :wk "Vertical split window")
+    "w i" '(windows-adjust-size/body :wk "Window Size")
     ;; Window motions
     "w h" '(evil-window-left :wk "Window left")
     "w j" '(evil-window-down :wk "Window down")
@@ -479,6 +494,7 @@ APPEND and COMPARE-FN, see `add-to-list'."
 
 (dqv/leader-key
     "s" '(:ignore t :wk "Search")
+    "s t" '(counsel-projectile-grep :wk "Search Text")
     "s f" '(swiper :wk "Search File"))
 
 (dqv/leader-key
@@ -492,8 +508,14 @@ APPEND and COMPARE-FN, see `add-to-list'."
     "p" '(:ignore t:wl "Projectile")
     "p a" '(projectile-add-known-project :wk "Add Project")
     "p s" '(projectile-switch-project :wk "Switch Project")
-    "p f" '(counsel-projectile-find-file :wk "Find File")
+    "p f" '(projectile-find-file :wk "Find File")
     "p r" '(projectile-remove-known-project :wk "Remove Known Project"))
+
+(dqv/evil
+  ;;:packages '(counsel)
+    "s" '(window-configuration-to-register :wk "Register Window")
+    "f" '(jump-to-register :wk "Jump Register")
+    "U"   #'evil-redo)
 
 (use-package company
   :straight (:build t)
@@ -997,6 +1019,25 @@ Spell Commands^^           Add To Dictionary^^              Other
     :packages 'json-mode
     :keymaps 'json-mode-map
     "f" #'json-pretty-print-buffer))
+
+(defun split-window-right-and-focus ()
+  "Spawn a new window right of the current one and focus it."
+  (interactive)
+  (split-window-right)
+  (windmove-right))
+
+(defun split-window-below-and-focus ()
+  "Spawn a new window below the current one and focus it."
+  (interactive)
+  (split-window-below)
+  (windmove-down))
+
+(defun kill-buffer-and-delete-window ()
+  "Kill the current buffer and delete its window."
+  (interactive)
+  (progn
+    (kill-this-buffer)
+    (delete-window)))
 
 (use-package dockerfile-mode
   :defer t

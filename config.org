@@ -66,6 +66,8 @@
   - [[#nginx][Nginx]]
   - [[#csv][CSV]]
   - [[#json][JSON]]
+- [[#custom-elisp][Custom Elisp]]
+  - [[#handle-new-windows][Handle New Windows]]
 - [[#general-programming-languages][General Programming Languages]]
   - [[#docker][Docker]]
   - [[#web-programming][Web programming]]
@@ -610,6 +612,25 @@ Hydra is a simple menu creator for keybindings.
   :defer t)
 
 #+end_src
+
+Similarly still, this one allows me to manage the size my Emacs windows.
+
+#+begin_src emacs-lisp
+
+(defhydra windows-adjust-size ()
+  "
+^Zoom^                                ^Other
+^^^^^^^-----------------------------------------
+[_j_/_k_] shrink/enlarge vertically   [_q_] quit
+[_l_/_h_] shrink/enlarge horizontally
+"
+  ("q" nil :exit t)
+  ("l" shrink-window-horizontally)
+  ("j" enlarge-window)
+  ("k" shrink-window)
+  ("h" enlarge-window-horizontally))
+
+#+end_src
 ** Y’all want some more COLORS?
 It is possible to make info buffers much more colorful (and imo easier to read) with this simple package:
 #+begin_src emacs-lisp
@@ -920,10 +941,12 @@ Org mode source blocks have some really weird and annoying default indentation b
 (dqv/leader-key
     "w" '(:ignore t :wk "Windows")
     ;; Window splits
-    "w c" '(evil-window-delete :wk "Close window")
+    "w c" '(kill-buffer-and-delete-window :wk "Kill & Delete")
+    "w d" '(delete-window :wk "Delete window")
     "w n" '(evil-window-new :wk "New window")
-    "w s" '(evil-window-split :wk "Horizontal split window")
-    "w v" '(evil-window-vsplit :wk "Vertical split window")
+    "w s" '(split-window-below-and-focus :wk "Horizontal split window")
+    "w v" '(split-window-right-and-focus :wk "Vertical split window")
+    "w i" '(windows-adjust-size/body :wk "Window Size")
     ;; Window motions
     "w h" '(evil-window-left :wk "Window left")
     "w j" '(evil-window-down :wk "Window down")
@@ -943,6 +966,7 @@ Org mode source blocks have some really weird and annoying default indentation b
 
 (dqv/leader-key
     "s" '(:ignore t :wk "Search")
+    "s t" '(counsel-projectile-grep :wk "Search Text")
     "s f" '(swiper :wk "Search File"))
 
 #+end_src
@@ -964,8 +988,18 @@ Org mode source blocks have some really weird and annoying default indentation b
     "p" '(:ignore t:wl "Projectile")
     "p a" '(projectile-add-known-project :wk "Add Project")
     "p s" '(projectile-switch-project :wk "Switch Project")
-    "p f" '(counsel-projectile-find-file :wk "Find File")
+    "p f" '(projectile-find-file :wk "Find File")
     "p r" '(projectile-remove-known-project :wk "Remove Known Project"))
+
+#+end_src
+*** Evil
+#+begin_src emacs-lisp
+
+(dqv/evil
+  ;;:packages '(counsel)
+    "s" '(window-configuration-to-register :wk "Register Window")
+    "f" '(jump-to-register :wk "Jump Register")
+    "U"   #'evil-redo)
 
 #+end_src
 * Packages Configuration
@@ -1624,6 +1658,33 @@ We then also have an autocompletion package that adds to company the Nginx synta
     :packages 'json-mode
     :keymaps 'json-mode-map
     "f" #'json-pretty-print-buffer))
+#+end_src
+
+* Custom Elisp
+** Handle New Windows
+The two functions below allow the user to not only create a new window to the right or below the current window (respectively), but also to focus the new window immediately.
+
+#+begin_src emacs-lisp
+
+(defun split-window-right-and-focus ()
+  "Spawn a new window right of the current one and focus it."
+  (interactive)
+  (split-window-right)
+  (windmove-right))
+
+(defun split-window-below-and-focus ()
+  "Spawn a new window below the current one and focus it."
+  (interactive)
+  (split-window-below)
+  (windmove-down))
+
+(defun kill-buffer-and-delete-window ()
+  "Kill the current buffer and delete its window."
+  (interactive)
+  (progn
+    (kill-this-buffer)
+    (delete-window)))
+
 #+end_src
 * General Programming Languages
 ** Docker
