@@ -52,6 +52,8 @@
   - [[#csv][CSV]]
   - [[#json][JSON]]
 - [[#general-programming-languages][General Programming Languages]]
+  - [[#web-programming][Web programming]]
+  - [[#css][CSS]]
   - [[#javascript][Javascript]]
   - [[#typescript][Typescript]]
   - [[#golang][Golang]]
@@ -662,6 +664,7 @@ Org mode source blocks have some really weird and annoying default indentation b
 
     (dqv/leader-key
         "h r" '(:ignore t :wk "Reload")
+        "h t" '(load-theme :wk "Load theme")
         "h r r" '((lambda () (interactive)
                     (load-file "~/.emacs.d/init.el")
                     (ignore (elpaca-process-queues)))

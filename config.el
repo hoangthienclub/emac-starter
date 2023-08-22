@@ -324,6 +324,7 @@
 
   (dqv/leader-key
       "h r" '(:ignore t :wk "Reload")
+      "h t" '(load-theme :wk "Load theme")
       "h r r" '((lambda () (interactive)
                   (load-file "~/.emacs.d/init.el")
                   (ignore (elpaca-process-queues)))
