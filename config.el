@@ -416,14 +416,21 @@ APPEND and COMPARE-FN, see `add-to-list'."
       "TAB TAB" '(comment-line :wk "Comment lines"))
 
   (dqv/leader-key
-      "d" '(:ignore t :wk "Dired")
-      "d d" '(dired :wk "Open dired")
-      "d j" '(dired-jump :wk "Dired jump to current")
-      "d n" '(neotree-dir :wk "Open directory in neotree")
-      "d p" '(peep-dired :wk "Peep-dired"))
+      "h r" '(:ignore t :wk "Reload")
+      "h t" '(load-theme :wk "Load theme")
+      "h r r" '((lambda () (interactive)
+                  (load-file "~/.emacs.d/init.el")
+                  (ignore (elpaca-process-queues)))
+              :wk "Reload emacs config"))
 
+(dqv/leader-key
+    "d" '(:ignore t :wk "Dired")
+    "d d" '(dired :wk "Open dired")
+    "d j" '(dired-jump :wk "Dired jump to current")
+    "d n" '(neotree-dir :wk "Open directory in neotree")
+    "d p" '(peep-dired :wk "Peep-dired"))
 
-  (dqv/leader-key
+(dqv/leader-key
     "b" '(:ignore t :wk "Bookmarks/Buffers")
     "b c" '(clone-indirect-buffer :wk "Create indirect buffer copy in a split")
     "b C" '(clone-indirect-buffer-other-window :wk "Clone indirect buffer in new window")
@@ -441,25 +448,17 @@ APPEND and COMPARE-FN, see `add-to-list'."
     "b S" '(save-some-buffers :wk "Save multiple buffers")
     "b w" '(bookmark-save :wk "Save current bookmarks to bookmark file"))
 
-  (dqv/leader-key
-    "t" '(:ignore t :wk "Toggle")
-    "t e" '(eshell-toggle :wk "Toggle eshell")
-    "t f" '(flycheck-mode :wk "Toggle flycheck")
-    "t l" '(display-line-numbers-mode :wk "Toggle line numbers")
-    "t n" '(neotree-toggle :wk "Toggle neotree file viewer")
-    "t r" '(rainbow-mode :wk "Toggle rainbow mode")
-    "t t" '(visual-line-mode :wk "Toggle truncated lines")
-    "t v" '(vterm-toggle :wk "Toggle vterm"))
+(dqv/leader-key
+  "t" '(:ignore t :wk "Toggle")
+  "t e" '(eshell-toggle :wk "Toggle eshell")
+  "t f" '(flycheck-mode :wk "Toggle flycheck")
+  "t l" '(display-line-numbers-mode :wk "Toggle line numbers")
+  "t n" '(neotree-toggle :wk "Toggle neotree file viewer")
+  "t r" '(rainbow-mode :wk "Toggle rainbow mode")
+  "t t" '(visual-line-mode :wk "Toggle truncated lines")
+  "t v" '(vterm-toggle :wk "Toggle vterm"))
 
-  (dqv/leader-key
-      "h r" '(:ignore t :wk "Reload")
-      "h t" '(load-theme :wk "Load theme")
-      "h r r" '((lambda () (interactive)
-                  (load-file "~/.emacs.d/init.el")
-                  (ignore (elpaca-process-queues)))
-              :wk "Reload emacs config"))
-
-  (dqv/leader-key
+(dqv/leader-key
     "w" '(:ignore t :wk "Windows")
     ;; Window splits
     "w c" '(evil-window-delete :wk "Close window")
@@ -478,19 +477,19 @@ APPEND and COMPARE-FN, see `add-to-list'."
     "w K" '(buf-move-up :wk "Buffer move up")
     "w L" '(buf-move-right :wk "Buffer move right"))
 
-  (dqv/leader-key
+(dqv/leader-key
     "s" '(:ignore t :wk "Search")
     "s f" '(swiper :wk "Search File"))
 
-  (dqv/leader-key
+(dqv/leader-key
     "d" '(:ignore t :wk "LSP")
     "ll"  #'lsp
     "lm"  #'lsp-ui-imenu
     "ld"  #'xref-find-definitions-other-window
     "lD"  #'xref-find-definitions)
 
-  (dqv/leader-key
-    ;; "p" '(:ignore t:wl "Projectile")
+(dqv/leader-key
+    "p" '(:ignore t:wl "Projectile")
     "p a" '(projectile-add-known-project :wk "Add Project")
     "p s" '(projectile-switch-project :wk "Switch Project")
     "p f" '(counsel-projectile-find-file :wk "Find File")

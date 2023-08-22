@@ -39,7 +39,8 @@
   - [[#disable-electric-indent][Disable Electric Indent]]
 - [[#general-keybindings][General Keybindings]]
   - [[#which-key][Which Key]]
-  - [[#keybindings][Keybindings]]
+  - [[#define-key][Define Key]]
+  - [[#keybinding][Keybinding]]
 - [[#packages-configuration][Packages Configuration]]
   - [[#code-autocompletion][Code Autocompletion]]
   - [[#ivy][Ivy]]
@@ -820,7 +821,7 @@ Org mode source blocks have some really weird and annoying default indentation b
   (which-key-posframe-mode))
 
 #+end_src
-** Keybindings
+** Define Key
 #+begin_src emacs-lisp
 (use-package general
   :straight (:build t)
@@ -855,14 +856,32 @@ Org mode source blocks have some really weird and annoying default indentation b
       "TAB TAB" '(comment-line :wk "Comment lines"))
 
   (dqv/leader-key
-      "d" '(:ignore t :wk "Dired")
-      "d d" '(dired :wk "Open dired")
-      "d j" '(dired-jump :wk "Dired jump to current")
-      "d n" '(neotree-dir :wk "Open directory in neotree")
-      "d p" '(peep-dired :wk "Peep-dired"))
+      "h r" '(:ignore t :wk "Reload")
+      "h t" '(load-theme :wk "Load theme")
+      "h r r" '((lambda () (interactive)
+                  (load-file "~/.emacs.d/init.el")
+                  (ignore (elpaca-process-queues)))
+              :wk "Reload emacs config"))
 
+#+end_src
 
-  (dqv/leader-key
+** Keybinding
+*** Dired
+#+begin_src emacs-lisp
+
+(dqv/leader-key
+    "d" '(:ignore t :wk "Dired")
+    "d d" '(dired :wk "Open dired")
+    "d j" '(dired-jump :wk "Dired jump to current")
+    "d n" '(neotree-dir :wk "Open directory in neotree")
+    "d p" '(peep-dired :wk "Peep-dired"))
+
+#+end_src
+
+*** Buffer
+#+begin_src emacs-lisp
+
+(dqv/leader-key
     "b" '(:ignore t :wk "Bookmarks/Buffers")
     "b c" '(clone-indirect-buffer :wk "Create indirect buffer copy in a split")
     "b C" '(clone-indirect-buffer-other-window :wk "Clone indirect buffer in new window")
@@ -880,6 +899,10 @@ Org mode source blocks have some really weird and annoying default indentation b
     "b S" '(save-some-buffers :wk "Save multiple buffers")
     "b w" '(bookmark-save :wk "Save current bookmarks to bookmark file"))
 
+#+end_src
+*** Toggle
+#+begin_src emacs-lisp
+
   (dqv/leader-key
     "t" '(:ignore t :wk "Toggle")
     "t e" '(eshell-toggle :wk "Toggle eshell")
@@ -890,15 +913,11 @@ Org mode source blocks have some really weird and annoying default indentation b
     "t t" '(visual-line-mode :wk "Toggle truncated lines")
     "t v" '(vterm-toggle :wk "Toggle vterm"))
 
-  (dqv/leader-key
-      "h r" '(:ignore t :wk "Reload")
-      "h t" '(load-theme :wk "Load theme")
-      "h r r" '((lambda () (interactive)
-                  (load-file "~/.emacs.d/init.el")
-                  (ignore (elpaca-process-queues)))
-              :wk "Reload emacs config"))
+#+end_src
+*** Window
+#+begin_src emacs-lisp
 
-  (dqv/leader-key
+(dqv/leader-key
     "w" '(:ignore t :wk "Windows")
     ;; Window splits
     "w c" '(evil-window-delete :wk "Close window")
@@ -917,18 +936,31 @@ Org mode source blocks have some really weird and annoying default indentation b
     "w K" '(buf-move-up :wk "Buffer move up")
     "w L" '(buf-move-right :wk "Buffer move right"))
 
-  (dqv/leader-key
+
+#+end_src
+*** Search
+#+begin_src emacs-lisp
+
+(dqv/leader-key
     "s" '(:ignore t :wk "Search")
     "s f" '(swiper :wk "Search File"))
 
-  (dqv/leader-key
+#+end_src
+*** LSP
+#+begin_src emacs-lisp
+
+(dqv/leader-key
     "d" '(:ignore t :wk "LSP")
     "ll"  #'lsp
     "lm"  #'lsp-ui-imenu
     "ld"  #'xref-find-definitions-other-window
     "lD"  #'xref-find-definitions)
 
-  (dqv/leader-key
+#+end_src
+*** Projectile
+#+begin_src emacs-lisp
+
+(dqv/leader-key
     "p" '(:ignore t:wl "Projectile")
     "p a" '(projectile-add-known-project :wk "Add Project")
     "p s" '(projectile-switch-project :wk "Switch Project")
@@ -936,7 +968,6 @@ Org mode source blocks have some really weird and annoying default indentation b
     "p r" '(projectile-remove-known-project :wk "Remove Known Project"))
 
 #+end_src
-
 * Packages Configuration
 ** Code Autocompletion
 Company is, in my opinion, the best autocompleting engine for Emacs, and it is one of the most popular if not the most popular.
