@@ -490,7 +490,7 @@ APPEND and COMPARE-FN, see `add-to-list'."
     "lD"  #'xref-find-definitions)
 
   (dqv/leader-key
-    "p" '(:ignore t:wl "Projectile")
+    ;; "p" '(:ignore t:wl "Projectile")
     "p a" '(projectile-add-known-project :wk "Add Project")
     "p s" '(projectile-switch-project :wk "Switch Project")
     "p f" '(counsel-projectile-find-file :wk "Find File")
@@ -630,10 +630,7 @@ APPEND and COMPARE-FN, see `add-to-list'."
   :config
   (projectile-mode)
   (add-to-list 'projectile-ignored-projects "~/")
-  (add-to-list 'projectile-globally-ignored-directories "^node_modules$")
-    :general
-    (dqv/leader-key
-        "p" '(:keymap projectile-command-map :which-key "projectile")))
+  (add-to-list 'projectile-globally-ignored-directories "^node_modules$"))
 
 (use-package counsel-projectile
   :straight (:build t)
@@ -826,6 +823,39 @@ APPEND and COMPARE-FN, see `add-to-list'."
         ispell-aspell-data-dir (ispell-get-aspell-config-value "data-dir")
         ispell-personal-dictionary (expand-file-name (concat "ispell/" ispell-dictionary ".pws")
                                                      user-emacs-directory)))
+
+(use-package flyspell
+  :defer t
+  :straight (:type built-in)
+  :ghook 'org-mode 'markdown-mode 'TeX-mode
+  :init
+  (defhydra flyspell-hydra ()
+    "
+Spell Commands^^           Add To Dictionary^^              Other
+--------------^^---------- -----------------^^------------- -----^^---------------------------
+[_b_] check whole buffer   [_B_] add word to dict (buffer)  [_t_] toggle spell check
+[_r_] check region         [_G_] add word to dict (global)  [_q_] exit
+[_d_] change dictionary    [_S_] add word to dict (session) [_Q_] exit and disable spell check
+[_n_] next error
+[_c_] correct before point
+[_s_] correct at point
+"
+    ("B" nil)
+    ("b" flyspell-buffer)
+    ("r" flyspell-region)
+    ("d" ispell-change-dictionary)
+    ("G" nil)
+    ("n" flyspell-goto-next-error)
+    ("c" flyspell-correct-wrapper)
+    ("Q" flyspell-mode :exit t)
+    ("q" nil :exit t)
+    ("S" nil)
+    ("s" flyspell-correct-at-point)
+    ("t" nil))
+  :config
+  (provide 'ispell) ;; force loading ispell
+  (setq flyspell-issue-welcome-flag nil
+        flyspell-issue-message-flag nil))
 
 (use-package flyspell-correct
   :defer t
