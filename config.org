@@ -9,49 +9,32 @@
   - [[#repositories][Repositories]]
   - [[#adding-the-scripts-directory-to-path][Adding the scripts directory to path]]
   - [[#sourcing-the-scripts][Sourcing the scripts]]
-  - [[#general-keybindings][General Keybindings]]
-- [[#general-settings][GENERAL SETTINGS]]
-- [[#evil][EVIL]]
+- [[#basic-configuration][Basic Configuration]]
+  - [[#early-init][Early Init]]
+  - [[#emacs-behavior][Emacs Behavior]]
+- [[#graphical-user-interface-tweaks][Graphical User Interface Tweaks]]
+  - [[#theme][Theme]]
+  - [[#font][Font]]
+  - [[#dashboard][Dashboard]]
+- [[#evil][Evil]]
   - [[#basic][Basic]]
-  - [[#cursor][Cursor]]
-- [[#move-text][MOVE TEXT]]
-- [[#eye-brown][EYE BROWN]]
-- [[#backup][BACKUP]]
-- [[#company][COMPANY]]
-- [[#dashboard][DASHBOARD]]
-- [[#diminish][DIMINISH]]
-- [[#dired][DIRED]]
-- [[#flycheck][FLYCHECK]]
-- [[#fonts][FONTS]]
-  - [[#setting-the-font-face][Setting the Font Face]]
-  - [[#zooming-inout][Zooming In/Out]]
-- [[#graphical-user-interface-tweaks][GRAPHICAL USER INTERFACE TWEAKS]]
-  - [[#disable-menubar-toolbars-and-scrollbars][Disable Menubar, Toolbars and Scrollbars]]
-  - [[#display-line-numbers-and-truncated-lines][Display Line Numbers and Truncated Lines]]
-- [[#ivy-counsel][IVY (COUNSEL)]]
-- [[#language-support][LANGUAGE SUPPORT]]
-- [[#modeline][MODELINE]]
-  - [[#basic-1][Basic]]
-  - [[#datetime][Datetime]]
-- [[#neotree][NEOTREE]]
-- [[#org-mode][Org Mode]]
-  - [[#basic-2][Basic]]
+  - [[#evil-define-keys][Evil Define Keys]]
+- [[#org-mode][Org-mode]]
+  - [[#basic-config][Basic Config]]
+  - [[#configuration-babel-languages][Configuration Babel Languages]]
+  - [[#structure-template][Structure Template]]
+  - [[#auto-tangle-configuration-files][Auto-tangle Configuration Files]]
   - [[#enabling-table-of-contents][Enabling Table of Contents]]
-  - [[#enabling-org-bullets][Enabling Org Bullets]]
   - [[#disable-electric-indent][Disable Electric Indent]]
-  - [[#source-code-block-tag-expansion][Source Code Block Tag Expansion]]
-- [[#projectile][PROJECTILE]]
-- [[#rainbow-mode][RAINBOW MODE]]
-- [[#reload-emacs][RELOAD EMACS]]
-- [[#shells-and-terminals][SHELLS AND TERMINALS]]
-  - [[#eshell][Eshell]]
-  - [[#vterm][Vterm]]
-  - [[#vterm-toggle][Vterm-Toggle]]
-- [[#transparency][TRANSPARENCY]]
-- [[#theme][THEME]]
-- [[#which-key][WHICH-KEY]]
-- [[#programing][PROGRAMING]]
-  - [[#tool][Tool]]
+- [[#keybinding-management][Keybinding Management]]
+- [[#general-keybindings][General Keybindings]]
+  - [[#which-key][Which Key]]
+  - [[#keybindings][Keybindings]]
+- [[#packages-configuration][Packages Configuration]]
+  - [[#code-autocompletion][Code Autocompletion]]
+  - [[#ivy][Ivy]]
+  - [[#counsel][Counsel]]
+  - [[#projectile][Projectile]]
 
 * Package Management
 ** Repositories
@@ -513,6 +496,20 @@ Evil is an extensible vi/vim layer for Emacs.  Because…let’s face it.  The V
   (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
 
 #+end_src
+** Enabling Table of Contents
+#+begin_src emacs-lisp
+(use-package toc-org
+    :commands toc-org-enable
+    :init (add-hook 'org-mode-hook 'toc-org-enable))
+#+end_src
+** Disable Electric Indent
+Org mode source blocks have some really weird and annoying default indentation behavior.  I think this has to do with electric-indent-mode, which is turned on by default in Emacs, and the fact that Org defaults to indenting 2 spaces in source blocks.  So let's turn it all of that OFF!
+
+#+begin_src emacs-lisp
+(electric-indent-mode -1)
+(setq org-edit-src-content-indentation 0)
+#+end_src
+
 * Keybinding Management
 
 * General Keybindings
@@ -587,11 +584,40 @@ Evil is an extensible vi/vim layer for Emacs.  Because…let’s face it.  The V
       "b w" '(bookmark-save :wk "Save current bookmarks to bookmark file"))
 
     (dt/leader-keys
+      "t" '(:ignore t :wk "Toggle")
+      "t e" '(eshell-toggle :wk "Toggle eshell")
+      "t f" '(flycheck-mode :wk "Toggle flycheck")
+      "t l" '(display-line-numbers-mode :wk "Toggle line numbers")
+      "t n" '(neotree-toggle :wk "Toggle neotree file viewer")
+      "t r" '(rainbow-mode :wk "Toggle rainbow mode")
+      "t t" '(visual-line-mode :wk "Toggle truncated lines")
+      "t v" '(vterm-toggle :wk "Toggle vterm"))
+
+    (dt/leader-keys
         "h r" '(:ignore t :wk "Reload")
         "h r r" '((lambda () (interactive)
                     (load-file "~/.emacs.d/init.el")
                     (ignore (elpaca-process-queues)))
                 :wk "Reload emacs config"))
+
+    (dt/leader-keys
+      "w" '(:ignore t :wk "Windows")
+      ;; Window splits
+      "w c" '(evil-window-delete :wk "Close window")
+      "w n" '(evil-window-new :wk "New window")
+      "w s" '(evil-window-split :wk "Horizontal split window")
+      "w v" '(evil-window-vsplit :wk "Vertical split window")
+      ;; Window motions
+      "w h" '(evil-window-left :wk "Window left")
+      "w j" '(evil-window-down :wk "Window down")
+      "w k" '(evil-window-up :wk "Window up")
+      "w l" '(evil-window-right :wk "Window right")
+      "w w" '(evil-window-next :wk "Goto next window")
+      ;; Move Windows
+      "w H" '(buf-move-left :wk "Buffer move left")
+      "w J" '(buf-move-down :wk "Buffer move down")
+      "w K" '(buf-move-up :wk "Buffer move up")
+      "w L" '(buf-move-right :wk "Buffer move right"))
 
 #+end_src
 

@@ -205,6 +205,13 @@
 
 (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
 
+(use-package toc-org
+    :commands toc-org-enable
+    :init (add-hook 'org-mode-hook 'toc-org-enable))
+
+(electric-indent-mode -1)
+(setq org-edit-src-content-indentation 0)
+
 (use-package which-key
   :straight (:build t)
   :defer t
@@ -272,11 +279,40 @@
     "b w" '(bookmark-save :wk "Save current bookmarks to bookmark file"))
 
   (dt/leader-keys
+    "t" '(:ignore t :wk "Toggle")
+    "t e" '(eshell-toggle :wk "Toggle eshell")
+    "t f" '(flycheck-mode :wk "Toggle flycheck")
+    "t l" '(display-line-numbers-mode :wk "Toggle line numbers")
+    "t n" '(neotree-toggle :wk "Toggle neotree file viewer")
+    "t r" '(rainbow-mode :wk "Toggle rainbow mode")
+    "t t" '(visual-line-mode :wk "Toggle truncated lines")
+    "t v" '(vterm-toggle :wk "Toggle vterm"))
+
+  (dt/leader-keys
       "h r" '(:ignore t :wk "Reload")
       "h r r" '((lambda () (interactive)
                   (load-file "~/.emacs.d/init.el")
                   (ignore (elpaca-process-queues)))
               :wk "Reload emacs config"))
+
+  (dt/leader-keys
+    "w" '(:ignore t :wk "Windows")
+    ;; Window splits
+    "w c" '(evil-window-delete :wk "Close window")
+    "w n" '(evil-window-new :wk "New window")
+    "w s" '(evil-window-split :wk "Horizontal split window")
+    "w v" '(evil-window-vsplit :wk "Vertical split window")
+    ;; Window motions
+    "w h" '(evil-window-left :wk "Window left")
+    "w j" '(evil-window-down :wk "Window down")
+    "w k" '(evil-window-up :wk "Window up")
+    "w l" '(evil-window-right :wk "Window right")
+    "w w" '(evil-window-next :wk "Goto next window")
+    ;; Move Windows
+    "w H" '(buf-move-left :wk "Buffer move left")
+    "w J" '(buf-move-down :wk "Buffer move down")
+    "w K" '(buf-move-up :wk "Buffer move up")
+    "w L" '(buf-move-right :wk "Buffer move right"))
 
 (use-package company
   :straight (:build t)
