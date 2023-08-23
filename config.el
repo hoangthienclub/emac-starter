@@ -494,7 +494,7 @@ APPEND and COMPARE-FN, see `add-to-list'."
 
 (dqv/leader-key
     "s" '(:ignore t :wk "Search")
-    "s t" '(counsel-projectile-grep :wk "Search Text")
+    "s t" '(counsel-projectile-git-grep :wk "Search Text")
     "s f" '(swiper :wk "Search File"))
 
 (dqv/leader-key
