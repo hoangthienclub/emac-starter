@@ -245,6 +245,8 @@ APPEND and COMPARE-FN, see `add-to-list'."
   :hook (Info-selection . info-colors-fontify-node)
   :hook (Info-mode      . mixed-pitch-mode))
 
+(use-package diminish)
+
 (use-package evil
     :init      ;; tweak evil's configuration before loading it
     (setq evil-want-integration t
@@ -273,6 +275,7 @@ APPEND and COMPARE-FN, see `add-to-list'."
 (use-package undo-tree
   :defer t
   :straight (:build t)
+  :diminish
   :custom
   (undo-tree-history-directory-alist
    `(("." . ,(expand-file-name (file-name-as-directory "undo-tree-hist")
@@ -515,12 +518,14 @@ APPEND and COMPARE-FN, see `add-to-list'."
   ;;:packages '(counsel)
     "s" '(window-configuration-to-register :wk "Register Window")
     "f" '(jump-to-register :wk "Jump Register")
+    "K" '(lsp-ui-doc-toggle :wk "Show Document")
     "U"   #'evil-redo)
 
 (use-package company
   :straight (:build t)
   :defer t
   :hook (company-mode . evil-normalize-keymaps)
+  :diminish
   :init (global-company-mode)
   :config
   (setq company-minimum-prefix-length     2
@@ -582,6 +587,7 @@ APPEND and COMPARE-FN, see `add-to-list'."
   :straight (:build t)
   :init
   (ivy-posframe-mode 1)
+  :diminish
   :config
   (setq ivy-fixed-height-minibuffer nil
         ivy-posframe-border-width   10
@@ -700,23 +706,27 @@ APPEND and COMPARE-FN, see `add-to-list'."
   :straight (:build t)
   :init
   (yas-global-mode)
+  :diminish
   :hook ((prog-mode . yas-minor-mode)
          (text-mode . yas-minor-mode)))
 
 (use-package yasnippet-snippets
   :defer t
   :after yasnippet
-  :straight (:build t))
+  :straight (:build t)
+  :diminish)
 
 (use-package yatemplate
   :defer t
   :after yasnippet
-  :straight (:build t))
+  :straight (:build t)
+  :diminish)
 
 (use-package ivy-yasnippet
   :defer t
   :after (ivy yasnippet)
   :straight (:build t)
+  :diminish
   :general
   (dqv/leader-key
     :infix "i"
@@ -776,6 +786,7 @@ APPEND and COMPARE-FN, see `add-to-list'."
          (org-mode      . git-gutter-mode)
          (markdown-mode . git-gutter-mode)
          (latex-mode    . git-gutter-mode))
+  :diminish
   :config
   (setq git-gutter:update-interval 2)
   ;; These characters are used in terminal mode
@@ -931,12 +942,15 @@ Spell Commands^^           Add To Dictionary^^              Other
 
 (setq lsp-sqls-workspace-config-path nil)
 (setq lsp-enable-indentation nil)
+(setq lsp-ui-imenu-auto-refresh nil)
+(setq lsp-ui-doc-position 'at-point)
 
 (use-package lsp-ui
   :after lsp
   :defer t
   :straight (:build t)
   :commands lsp-ui-mode
+  :config
   :custom
   (lsp-ui-peek-always-show nil)
   (lsp-ui-sideline-show-hover t)
@@ -1191,8 +1205,7 @@ Spell Commands^^           Add To Dictionary^^              Other
                                            (scss-mode-map . scss-mode-hook))
            do (add-hook mode-hook #'counsel-css-imenu-setup)
            (dqv/major-leader-key
-            :keymaps mode-map(setq eldoc-echo-area-use-multiline-p f) ; Allow multiline tooltips
-
+            :keymaps mode-map
             "gh" #'counsel-css)))
 
 (use-package less-css-mode
@@ -1302,7 +1315,6 @@ Spell Commands^^           Add To Dictionary^^              Other
   (when (fboundp 'web-mode)
     (define-derived-mode typescript-tsx-mode web-mode "TypeScript-TSX"))
   (autoload 'js2-line-break "js2-mode" nil t))
-)
 
 (use-package tide
   :defer t
@@ -1357,9 +1369,6 @@ Spell Commands^^           Add To Dictionary^^              Other
 
 (use-package yaml-mode
   :ensure t)
-
-(eval-after-load 'tide
-  '(define-key tide-mode-map (kbd "K") 'company-complete))
 
 (defun beautify-json ()
   (interactive)

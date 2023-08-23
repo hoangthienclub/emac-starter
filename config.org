@@ -26,6 +26,7 @@
   - [[#rainbow-delimiters][Rainbow Delimiters]]
   - [[#hydra][Hydra]]
   - [[#yall-want-some-more-colors][Y’all want some more COLORS?]]
+  - [[#diminish][Diminish]]
 - [[#evil][Evil]]
   - [[#basic][Basic]]
   - [[#evil-define-keys][Evil Define Keys]]
@@ -77,8 +78,7 @@
   - [[#typescript][Typescript]]
   - [[#golang][Golang]]
   - [[#yaml][Yaml]]
-  - [[#others][Others]]
-- [[#others-1][Others]]
+- [[#others][Others]]
   - [[#beauty-json][Beauty Json]]
   - [[#protobuf][Protobuf]]
 
@@ -642,6 +642,14 @@ It is possible to make info buffers much more colorful (and imo easier to read) 
   :hook (Info-selection . info-colors-fontify-node)
   :hook (Info-mode      . mixed-pitch-mode))
 #+end_src
+** Diminish
+This package implements hiding or abbreviation of the modeline displays (lighters) of minor-modes.  With this package installed, you can add ‘:diminish’ to any use-package block to hide that particular mode in the modeline.
+
+#+begin_src emacs-lisp
+
+(use-package diminish)
+
+#+end_src
 * Evil
 Evil is an extensible vi/vim layer for Emacs.  Because…let’s face it.  The Vim keybindings are just plain better.
 ** Basic
@@ -686,6 +694,7 @@ Evil is an extensible vi/vim layer for Emacs.  Because…let’s face it.  The V
 (use-package undo-tree
   :defer t
   :straight (:build t)
+  :diminish
   :custom
   (undo-tree-history-directory-alist
    `(("." . ,(expand-file-name (file-name-as-directory "undo-tree-hist")
@@ -1001,6 +1010,7 @@ Org mode source blocks have some really weird and annoying default indentation b
   ;;:packages '(counsel)
     "s" '(window-configuration-to-register :wk "Register Window")
     "f" '(jump-to-register :wk "Jump Register")
+    "K" '(lsp-ui-doc-toggle :wk "Show Document")
     "U"   #'evil-redo)
 
 #+end_src
@@ -1012,6 +1022,7 @@ Company is, in my opinion, the best autocompleting engine for Emacs, and it is o
   :straight (:build t)
   :defer t
   :hook (company-mode . evil-normalize-keymaps)
+  :diminish
   :init (global-company-mode)
   :config
   (setq company-minimum-prefix-length     2
@@ -1092,6 +1103,7 @@ A buffer popping at the bottom of the screen is nice and all, but have you consi
   :straight (:build t)
   :init
   (ivy-posframe-mode 1)
+  :diminish
   :config
   (setq ivy-fixed-height-minibuffer nil
         ivy-posframe-border-width   10
@@ -1252,6 +1264,7 @@ Yasnippet allows you to insert some pre-made code by just typing a few character
   :straight (:build t)
   :init
   (yas-global-mode)
+  :diminish
   :hook ((prog-mode . yas-minor-mode)
          (text-mode . yas-minor-mode)))
 #+end_src
@@ -1261,7 +1274,8 @@ Of course, yasnippet wouldn’t be as awesome as it is without premade snippets.
 (use-package yasnippet-snippets
   :defer t
   :after yasnippet
-  :straight (:build t))
+  :straight (:build t)
+  :diminish)
 #+end_src
 
 Similarly, yatemplate offers premade files rather than just strings. That’s still yasnippet by the way.
@@ -1269,7 +1283,8 @@ Similarly, yatemplate offers premade files rather than just strings. That’s st
 (use-package yatemplate
   :defer t
   :after yasnippet
-  :straight (:build t))
+  :straight (:build t)
+  :diminish)
 #+end_src
 
 And finally, with ivy you can chose your snippets from a menu if you’re not sure or if you don’t remember what your snippet is.
@@ -1278,6 +1293,7 @@ And finally, with ivy you can chose your snippets from a menu if you’re not su
   :defer t
   :after (ivy yasnippet)
   :straight (:build t)
+  :diminish
   :general
   (dqv/leader-key
     :infix "i"
@@ -1368,6 +1384,7 @@ It’s nice to know which lines were modified since the last commit in a file.
          (org-mode      . git-gutter-mode)
          (markdown-mode . git-gutter-mode)
          (latex-mode    . git-gutter-mode))
+  :diminish
   :config
   (setq git-gutter:update-interval 2)
   ;; These characters are used in terminal mode
@@ -1548,6 +1565,8 @@ Spell Commands^^           Add To Dictionary^^              Other
 
 (setq lsp-sqls-workspace-config-path nil)
 (setq lsp-enable-indentation nil)
+(setq lsp-ui-imenu-auto-refresh nil)
+(setq lsp-ui-doc-position 'at-point)
 #+end_src
 
 I also want all the visual enhancements LSP can provide.
@@ -1557,6 +1576,7 @@ I also want all the visual enhancements LSP can provide.
   :defer t
   :straight (:build t)
   :commands lsp-ui-mode
+  :config
   :custom
   (lsp-ui-peek-always-show nil)
   (lsp-ui-sideline-show-hover t)
