@@ -966,7 +966,7 @@ Org mode source blocks have some really weird and annoying default indentation b
 
 (dqv/leader-key
     "s" '(:ignore t :wk "Search")
-    "s t" '(counsel-projectile-grep :wk "Search Text")
+    "s t" '(counsel-projectile-git-grep :wk "Search Text")
     "s f" '(swiper :wk "Search File"))
 
 #+end_src
