@@ -1039,6 +1039,26 @@ Spell Commands^^           Add To Dictionary^^              Other
     (kill-this-buffer)
     (delete-window)))
 
+(use-package eldoc
+  ;; :defer t
+  :after company
+  :preface
+  (setq eldoc-documentation-strategy 'eldoc-documentation-compose-eagerly)
+  (add-to-list 'display-buffer-alist
+            '("^\\*eldoc for" display-buffer-at-bottom
+              (window-height . 4)))
+  :hook ((eglot-managed-mode . mp-eglot-eldoc))
+  :init
+  (eldoc-add-command 'company-complete-selection
+                     'company-complete-common
+                     'company-capf
+                     'company-abort)
+  :config
+  (setq eldoc-echo-area-prefer-doc-buffer t)
+  (eldoc-add-command-completions "paredit-")
+  (eldoc-add-command-completions "combobulate-")
+  (setq eldoc-echo-area-use-multiline-p nil))
+
 (use-package dockerfile-mode
   :defer t
   :straight (:build t)
@@ -1171,7 +1191,8 @@ Spell Commands^^           Add To Dictionary^^              Other
                                            (scss-mode-map . scss-mode-hook))
            do (add-hook mode-hook #'counsel-css-imenu-setup)
            (dqv/major-leader-key
-            :keymaps mode-map
+            :keymaps mode-map(setq eldoc-echo-area-use-multiline-p f) ; Allow multiline tooltips
+
             "gh" #'counsel-css)))
 
 (use-package less-css-mode
@@ -1281,6 +1302,7 @@ Spell Commands^^           Add To Dictionary^^              Other
   (when (fboundp 'web-mode)
     (define-derived-mode typescript-tsx-mode web-mode "TypeScript-TSX"))
   (autoload 'js2-line-break "js2-mode" nil t))
+)
 
 (use-package tide
   :defer t
@@ -1335,6 +1357,9 @@ Spell Commands^^           Add To Dictionary^^              Other
 
 (use-package yaml-mode
   :ensure t)
+
+(eval-after-load 'tide
+  '(define-key tide-mode-map (kbd "K") 'company-complete))
 
 (defun beautify-json ()
   (interactive)

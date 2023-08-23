@@ -69,6 +69,7 @@
 - [[#custom-elisp][Custom Elisp]]
   - [[#handle-new-windows][Handle New Windows]]
 - [[#general-programming-languages][General Programming Languages]]
+  - [[#emacslisp][EmacsLisp]]
   - [[#docker][Docker]]
   - [[#web-programming][Web programming]]
   - [[#css][CSS]]
@@ -76,7 +77,8 @@
   - [[#typescript][Typescript]]
   - [[#golang][Golang]]
   - [[#yaml][Yaml]]
-- [[#others][Others]]
+  - [[#others][Others]]
+- [[#others-1][Others]]
   - [[#beauty-json][Beauty Json]]
   - [[#protobuf][Protobuf]]
 
@@ -1687,6 +1689,33 @@ The two functions below allow the user to not only create a new window to the ri
 
 #+end_src
 * General Programming Languages
+** EmacsLisp
+This package displays the function’s arglist or variable’s docstring in the echo area at the bottom of the frame. Quite useful indeed.
+
+#+begin_src emacs-lisp
+
+(use-package eldoc
+  ;; :defer t
+  :after company
+  :preface
+  (setq eldoc-documentation-strategy 'eldoc-documentation-compose-eagerly)
+  (add-to-list 'display-buffer-alist
+            '("^\\*eldoc for" display-buffer-at-bottom
+              (window-height . 4)))
+  :hook ((eglot-managed-mode . mp-eglot-eldoc))
+  :init
+  (eldoc-add-command 'company-complete-selection
+                     'company-complete-common
+                     'company-capf
+                     'company-abort)
+  :config
+  (setq eldoc-echo-area-prefer-doc-buffer t)
+  (eldoc-add-command-completions "paredit-")
+  (eldoc-add-command-completions "combobulate-")
+  (setq eldoc-echo-area-use-multiline-p nil))
+
+
+#+end_src
 ** Docker
 Docker is an awesome tool for reproducible development environments. Due to this, I absolutely need a mode for editing Dockerfiles.
 
