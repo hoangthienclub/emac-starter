@@ -73,6 +73,10 @@ APPEND and COMPARE-FN, see `add-to-list'."
     (dolist (elt elements return)
       (setq return (add-to-list list-var elt append compare-fn)))))
 
+;; Enable electric-pair-mode
+(electric-pair-mode 1)
+(define-key global-map (kbd "RET") 'newline-and-indent)
+
 ;; Profile emacs startup
 (add-hook 'emacs-startup-hook
         (lambda ()

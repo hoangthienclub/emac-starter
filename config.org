@@ -394,6 +394,14 @@ APPEND and COMPARE-FN, see `add-to-list'."
       (setq return (add-to-list list-var elt append compare-fn)))))
 #+end_src
 
+*** Autopair
+#+begin_src emacs-lisp
+
+;; Enable electric-pair-mode
+(electric-pair-mode 1)
+(define-key global-map (kbd "RET") 'newline-and-indent)
+
+#+end_src
 * Performance Upgrade
 ** Emacs Startup
 Tính toán garbage collections khi khởi động Emacs và thời gian loaded.
