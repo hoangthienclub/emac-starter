@@ -27,6 +27,7 @@
   - [[#hydra][Hydra]]
   - [[#yall-want-some-more-colors][Y’all want some more COLORS?]]
   - [[#diminish][Diminish]]
+  - [[#zen-mode][Zen Mode]]
 - [[#evil][Evil]]
   - [[#basic][Basic]]
   - [[#evil-define-keys][Evil Define Keys]]
@@ -78,6 +79,8 @@
   - [[#typescript][Typescript]]
   - [[#golang][Golang]]
   - [[#yaml][Yaml]]
+- [[#git][Git]]
+  - [[#history][History]]
 - [[#others][Others]]
   - [[#beauty-json][Beauty Json]]
   - [[#protobuf][Protobuf]]
@@ -89,6 +92,7 @@
 ;; Initialize package sources
 (setq package-archives '(("melpa"  . "https://melpa.org/packages/")
                     ("gnu"    . "https://elpa.gnu.org/packages/")
+                    ("melpa-stable"   .  "https://stable.melpa.org/packages/")
                     ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
 #+end_src
 ** Adding the scripts directory to path
@@ -650,6 +654,18 @@ This package implements hiding or abbreviation of the modeline displays (lighter
 (use-package diminish)
 
 #+end_src
+** Zen Mode
+#+begin_src emacs-lisp
+
+(use-package olivetti
+  :ensure t
+  :config
+  (setq olivetti-body-width 80) ; Set the width of the text column
+  (setq olivetti-minimum-body-width 80) ; Set a minimum body width
+  (setq olivetti-recall-visual-line-mode-entry-state t) ; Remember visual-line-mode
+  (add-hook 'olivetti-mode-hook #'visual-line-mode)) ; Enable visual-line-mode
+
+#+end_src
 * Evil
 Evil is an extensible vi/vim layer for Emacs.  Because…let’s face it.  The Vim keybindings are just plain better.
 ** Basic
@@ -937,6 +953,7 @@ Org mode source blocks have some really weird and annoying default indentation b
 
   (dqv/leader-key
     "t" '(:ignore t :wk "Toggle")
+    "z" '(olivetti-mode :wk "Zen Mode")
     "t e" '(eshell-toggle :wk "Toggle eshell")
     "t f" '(flycheck-mode :wk "Toggle flycheck")
     "t l" '(display-line-numbers-mode :wk "Toggle line numbers")
@@ -2095,6 +2112,11 @@ Tide enabled interactivity with Typescript.
 #+begin_src emacs-lisp
 (use-package yaml-mode
   :ensure t)
+#+end_src
+* Git
+** History
+#+begin_src emacs-lisp
+
 #+end_src
 * Others
 ** Beauty Json

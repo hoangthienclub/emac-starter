@@ -2,6 +2,7 @@
 ;; Initialize package sources
 (setq package-archives '(("melpa"  . "https://melpa.org/packages/")
                     ("gnu"    . "https://elpa.gnu.org/packages/")
+                    ("melpa-stable"   .  "https://stable.melpa.org/packages/")
                     ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
 
 (add-to-list 'load-path "~/.emacs.d/scripts/")
@@ -247,6 +248,14 @@ APPEND and COMPARE-FN, see `add-to-list'."
 
 (use-package diminish)
 
+(use-package olivetti
+  :ensure t
+  :config
+  (setq olivetti-body-width 80) ; Set the width of the text column
+  (setq olivetti-minimum-body-width 80) ; Set a minimum body width
+  (setq olivetti-recall-visual-line-mode-entry-state t) ; Remember visual-line-mode
+  (add-hook 'olivetti-mode-hook #'visual-line-mode)) ; Enable visual-line-mode
+
 (use-package evil
     :init      ;; tweak evil's configuration before loading it
     (setq evil-want-integration t
@@ -466,6 +475,7 @@ APPEND and COMPARE-FN, see `add-to-list'."
 
 (dqv/leader-key
   "t" '(:ignore t :wk "Toggle")
+  "z" '(olivetti-mode :wk "Zen Mode")
   "t e" '(eshell-toggle :wk "Toggle eshell")
   "t f" '(flycheck-mode :wk "Toggle flycheck")
   "t l" '(display-line-numbers-mode :wk "Toggle line numbers")
@@ -1369,6 +1379,8 @@ Spell Commands^^           Add To Dictionary^^              Other
 
 (use-package yaml-mode
   :ensure t)
+
+
 
 (defun beautify-json ()
   (interactive)
