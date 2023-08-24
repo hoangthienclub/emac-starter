@@ -1326,7 +1326,7 @@ Spell Commands^^           Add To Dictionary^^              Other
   :interpreter "node"
   :hook (rjsx-mode . rainbow-delimiters-mode)
   :hook (rjsx-mode . lsp-deferred)
-  :hook (rjsx-mode . prettier-js-mode)
+  ;; :hook (rjsx-mode . prettier-js-mode)
   :init
   (add-to-list 'compilation-error-regexp-alist 'node)
   (add-to-list 'compilation-error-regexp-alist-alist
