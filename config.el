@@ -74,7 +74,7 @@ APPEND and COMPARE-FN, see `add-to-list'."
       (setq return (add-to-list list-var elt append compare-fn)))))
 
 ;; Enable electric-pair-mode
-(electric-pair-mode 1)
+;; (electric-pair-mode 1)
 (define-key global-map (kbd "RET") 'newline-and-indent)
 
 ;; Profile emacs startup
@@ -387,6 +387,80 @@ APPEND and COMPARE-FN, see `add-to-list'."
 (electric-indent-mode -1)
 (setq org-edit-src-content-indentation 0)
 
+(use-package eshell
+  :defer t
+  :straight (:type built-in :build t)
+  :config
+  (setq eshell-prompt-function
+        (lambda ()
+          (concat (abbreviate-file-name (eshell/pwd))
+                  (if (= (user-uid) 0) " # " " λ ")))
+        eshell-prompt-regexp "^[^#λ\n]* [#λ] "))
+
+(use-package popwin
+  :straight t)
+
+(defun +popwin:eshell ()
+  (interactive)
+  (popwin:display-buffer-1
+    (or (get-buffer "*eshell*")
+        (save-window-excursion
+          (call-interactively 'eshell)))
+    :default-config-keywords '(:position :bottom :height 14)))
+
+(use-package vterm
+  :defer t
+  :straight t
+  :preface
+  (when noninteractive
+    (advice-add #'vterm-module-compile :override #'ignore)
+    (provide 'vterm-module))
+  :custom
+  (vterm-max-scrollback 5000)
+  :config
+  (setq term-prompt-regexp "^[^#$%>\n]*[#$%>] *")  ;; Set this to match your custom shell prompt
+  (setq vterm-shell "zsh")                       ;; Set this to customize the shell to launch
+  (setq vterm-max-scrollback 10000))
+
+(defun +popwin:vterm ()
+    (interactive)
+    (popwin:display-buffer-1
+    (or (get-buffer "*vterm*")
+        (save-window-excursion
+            (call-interactively 'vterm)))
+    :default-config-keywords '(:position :bottom :height 14)))
+
+(use-package multi-vterm
+  :after vterm
+  :defer t
+  :straight (:build t))
+
+(defadvice find-file (around find-files activate)
+  "Also find all files within a list of files. This even works recursively."
+  (if (listp filename)
+      (cl-loop for f in filename do (find-file f wildcards))
+    ad-do-it))
+
+(defun eshell-new ()
+  "Open a new instance of eshell."
+  (interactive)
+  (eshell 'N))
+
+(use-package eshell-z
+  :defer t
+  :after eshell
+  :straight (:build t)
+  :hook (eshell-mode . (lambda () (require 'eshell-z))))
+
+(setenv "SHELL" "/bin/zsh")
+
+(use-package eshell-syntax-highlighting
+  :after (esh-mode eshell)
+  :defer t
+  :straight (:build t)
+  :config
+  (eshell-syntax-highlighting-global-mode +1))
+
 (use-package which-key
   :straight (:build t)
   :defer t
@@ -460,7 +534,7 @@ APPEND and COMPARE-FN, see `add-to-list'."
     "d p" '(peep-dired :wk "Peep-dired"))
 
 (dqv/leader-key
-    "b" '(:ignore t :wk "Bookmarks/Buffers")
+    "b" '(:ignore t :wk "Bookmarks/Buf  fers")
     "b c" '(clone-indirect-buffer :wk "Create indirect buffer copy in a split")
     "b C" '(clone-indirect-buffer-other-window :wk "Clone indirect buffer in new window")
     "b d" '(bookmark-delete :wk "Delete bookmark")
@@ -534,6 +608,13 @@ APPEND and COMPARE-FN, see `add-to-list'."
     "f" '(jump-to-register :wk "Jump Register")
     "K" '(lsp-ui-doc-toggle :wk "Show Document")
     "U"   #'evil-redo)
+
+(dqv/leader-key
+  "o" '(:ignore t :wk "Shell")
+  "o e" '(+popwin:eshell :which-key "Eshell popup")
+  "o E" '(eshell :which-key "Eshell")
+  "o t" '(+popwin:vterm :which-key "vTerm popup")
+  "o T" '(vterm :which-key "vTerm"))
 
 (use-package company
   :straight (:build t)

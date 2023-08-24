@@ -39,6 +39,11 @@
   - [[#auto-tangle-configuration-files][Auto-tangle Configuration Files]]
   - [[#enabling-table-of-contents][Enabling Table of Contents]]
   - [[#disable-electric-indent][Disable Electric Indent]]
+- [[#shell][Shell]]
+  - [[#eshell][Eshell]]
+  - [[#vterm][Vterm]]
+  - [[#commands][Commands]]
+  - [[#eshell-syntax-highlighting][Eshell syntax highlighting]]
 - [[#general-keybindings][General Keybindings]]
   - [[#which-key][Which Key]]
   - [[#define-key][Define Key]]
@@ -852,6 +857,109 @@ Org mode source blocks have some really weird and annoying default indentation b
 (setq org-edit-src-content-indentation 0)
 #+end_src
 
+* Shell
+** Eshell
+Eshell is a built-in shell available from Emacs which I use almost as often as fish. Some adjustments are necessary to make it fit my taste though.
+#+begin_src emacs-lisp
+(use-package eshell
+  :defer t
+  :straight (:type built-in :build t)
+  :config
+  (setq eshell-prompt-function
+        (lambda ()
+          (concat (abbreviate-file-name (eshell/pwd))
+                  (if (= (user-uid) 0) " # " " λ ")))
+        eshell-prompt-regexp "^[^#λ\n]* [#λ] "))
+
+#+end_src
+** Vterm
+- Gives Emacs access to regular shells with an almost regular emulator. Be aware you will most likely need to hit ~C-c~ twice to send an interrupt signal.
+#+begin_src emacs-lisp
+(use-package popwin
+  :straight t)
+
+(defun +popwin:eshell ()
+  (interactive)
+  (popwin:display-buffer-1
+    (or (get-buffer "*eshell*")
+        (save-window-excursion
+          (call-interactively 'eshell)))
+    :default-config-keywords '(:position :bottom :height 14)))
+
+(use-package vterm
+  :defer t
+  :straight t
+  :preface
+  (when noninteractive
+    (advice-add #'vterm-module-compile :override #'ignore)
+    (provide 'vterm-module))
+  :custom
+  (vterm-max-scrollback 5000)
+  :config
+  (setq term-prompt-regexp "^[^#$%>\n]*[#$%>] *")  ;; Set this to match your custom shell prompt
+  (setq vterm-shell "zsh")                       ;; Set this to customize the shell to launch
+  (setq vterm-max-scrollback 10000))
+
+(defun +popwin:vterm ()
+    (interactive)
+    (popwin:display-buffer-1
+    (or (get-buffer "*vterm*")
+        (save-window-excursion
+            (call-interactively 'vterm)))
+    :default-config-keywords '(:position :bottom :height 14)))
+#+end_src
+
+One annoying think with vterm is it only can create one buffer, you can’t have multiple vterm buffers by default. ~multi-vterm~ fixes this issue.
+#+begin_src emacs-lisp
+(use-package multi-vterm
+  :after vterm
+  :defer t
+  :straight (:build t))
+#+end_src
+** Commands
+When I’m in Eshell, sometimes I wish to open multiple files at once in Emacs. For this, when I have several arguments for ~find-file~, I want to be able to open them all at once. Let’s modify ~find-file~ like so:
+#+BEGIN_SRC emacs-lisp
+(defadvice find-file (around find-files activate)
+  "Also find all files within a list of files. This even works recursively."
+  (if (listp filename)
+      (cl-loop for f in filename do (find-file f wildcards))
+    ad-do-it))
+#+END_SRC
+
+I also want to be able to have multiple instances of Eshell opened at once. For that, I declared the function ~eshell-new~ that does exactly that.
+#+begin_src emacs-lisp
+(defun eshell-new ()
+  "Open a new instance of eshell."
+  (interactive)
+  (eshell 'N))
+#+end_src
+
+A very useful command I use often in fish is ~z~, a port from bash’s and zsh’s command that allows to jump around directories based on how often we go in various directories.
+#+begin_src emacs-lisp
+(use-package eshell-z
+  :defer t
+  :after eshell
+  :straight (:build t)
+  :hook (eshell-mode . (lambda () (require 'eshell-z))))
+#+end_src
+
+Finally, for some specific situations I need ~SHELL~ to be set to
+something more standard than fish:
+#+begin_src emacs-lisp
+(setenv "SHELL" "/bin/zsh")
+#+end_src
+** Eshell syntax highlighting
+
+Another feature I like is fish-like syntax highlight, which brings some more colors to Eshell.
+#+begin_src emacs-lisp
+(use-package eshell-syntax-highlighting
+  :after (esh-mode eshell)
+  :defer t
+  :straight (:build t)
+  :config
+  (eshell-syntax-highlighting-global-mode +1))
+#+end_src
+
 * General Keybindings
 ** Which Key
 #+begin_src emacs-lisp
@@ -942,7 +1050,7 @@ Org mode source blocks have some really weird and annoying default indentation b
 #+begin_src emacs-lisp
 
 (dqv/leader-key
-    "b" '(:ignore t :wk "Bookmarks/Buffers")
+    "b" '(:ignore t :wk "Bookmarks/Buf  fers")
     "b c" '(clone-indirect-buffer :wk "Create indirect buffer copy in a split")
     "b C" '(clone-indirect-buffer-other-window :wk "Clone indirect buffer in new window")
     "b d" '(bookmark-delete :wk "Delete bookmark")
@@ -1041,6 +1149,17 @@ Org mode source blocks have some really weird and annoying default indentation b
     "f" '(jump-to-register :wk "Jump Register")
     "K" '(lsp-ui-doc-toggle :wk "Show Document")
     "U"   #'evil-redo)
+
+#+end_src
+*** Shell
+#+begin_src emacs-lisp
+
+  (dqv/leader-key
+    "o" '(:ignore t :wk "Shell")
+    "o e" '(+popwin:eshell :which-key "Eshell popup")
+    "o E" '(eshell :which-key "Eshell")
+    "o t" '(+popwin:vterm :which-key "vTerm popup")
+    "o T" '(vterm :which-key "vTerm"))
 
 #+end_src
 * Packages Configuration
