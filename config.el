@@ -1465,7 +1465,51 @@ Spell Commands^^           Add To Dictionary^^              Other
 (use-package yaml-mode
   :ensure t)
 
+(use-package magit
+  :straight (:build t)
+  :defer t
+  :init
+  (setq forge-add-default-bindings nil)
+  :config
+  (setq magit-diff-options '("-b")) ; ignore whitespace
 
+  (csetq magit-clone-default-directory "~/fromGIT/"
+         magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1)
+  (with-eval-after-load 'evil-collection
+    (dqv/evil
+      :packages '(evil-collection magit)
+      :keymaps '(magit-mode-map magit-log-mode-map magit-status-mode-map)
+      :states 'normal
+      "t" #'magit-tag
+      "s" #'magit-stage))
+  :general
+  (:keymaps '(git-rebase-mode-map)
+   :packages 'magit
+   "C-j" #'evil-next-line
+   "C-k" #'evil-previous-line)
+  (dqv/major-leader-key
+    :keymaps 'git-rebase-mode-map
+    :packages 'magit
+    "," #'with-editor-finish
+    "k" #'with-editor-cancel
+    "a" #'with-editor-cancel)
+  (dqv/leader-key
+    :infix   "g"
+    :packages 'magit
+    ""   '(:ignore t :which-key "git")
+    "b"  #'magit-blame
+    "c"  #'magit-clone
+    "d"  #'magit-dispatch
+    "i"  #'magit-init
+    "s"  #'magit-status
+    "y"  #'my/yadm
+    "S"  #'magit-stage-file
+    "U"  #'magit-unstage-file
+    "f"  '(:ignore t :which-key "file")
+    "fd" #'magit-diff
+    "fc" #'magit-file-checkout
+    "fl" #'magit-file-dispatch
+    "fF" #'magit-find-file))
 
 (defun beautify-json ()
   (interactive)
