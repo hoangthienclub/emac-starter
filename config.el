@@ -74,7 +74,11 @@ APPEND and COMPARE-FN, see `add-to-list'."
       (setq return (add-to-list list-var elt append compare-fn)))))
 
 ;; Enable electric-pair-mode
-;; (electric-pair-mode 1)
+(electric-pair-mode 1)
+;; Disable electric-pair-mode in org-mode
+(dolist (mode '(org-mode-hook))
+  (add-hook mode (lambda () (electric-pair-mode 0))))
+
 (define-key global-map (kbd "RET") 'newline-and-indent)
 
 ;; Profile emacs startup
@@ -1022,6 +1026,7 @@ Spell Commands^^           Add To Dictionary^^              Other
          (sql-mode       . lsp-deferred)
          (json-mode       . lsp-deferred)
          (typescript-mode . lsp-deferred)
+         (python-mode . lsp-deferred)
          (lsp-mode        . lsp-enable-which-key-integration)
          (lsp-mode        . lsp-ui-mode))
   :commands (lsp lsp-deferred)
