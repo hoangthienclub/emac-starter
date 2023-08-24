@@ -1465,6 +1465,194 @@ Spell Commands^^           Add To Dictionary^^              Other
 (use-package yaml-mode
   :ensure t)
 
+(use-package python
+  :defer t
+  :straight (:build t)
+  :after ob
+  :mode (("SConstruct\\'" . python-mode)
+         ("SConscript\\'" . python-mode)
+         ("[./]flake8\\'" . conf-mode)
+         ("/Pipfile\\'"   . conf-mode))
+  :init
+  (setq python-indent-guess-indent-offset-verbose nil)
+  (add-hook 'python-mode-local-vars-hook #'lsp)
+  :config
+  (setq python-indent-guess-indent-offset-verbose nil)
+  (when (and (executable-find "/usr/local/bin/python3")
+           (string= python-shell-interpreter "/usr/local/bin/python3"))
+    (setq python-shell-interpreter "/usr/local/bin/python3"))
+  (setq python-interpreter "/usr/local/bin/python3"))
+
+(use-package pytest
+  :defer t
+  :straight (:build t)
+  :commands (pytest-one
+             pytest-pdb-one
+             pytest-all
+             pytest-pdb-all
+             pytest-last-failed
+             pytest-pdb-last-failed
+             pytest-module
+             pytest-pdb-module)
+  :config
+  (add-to-list 'pytest-project-root-files "setup.cfg")
+  :general
+  (dqv/major-leader-key
+   :keymaps 'python-mode-map
+   :infix "t"
+   :packages 'pytest
+   ""  '(:ignore t :which-key "test")
+   "a" #'python-pytest
+   "f" #'python-pytest-file-dwim
+   "F" #'python-pytest-file
+   "t" #'python-pytest-function-dwim
+   "T" #'python-pytest-function
+   "r" #'python-pytest-repeat
+   "p" #'python-pytest-dispatch))
+
+(use-package poetry
+  :defer t
+  :straight (:build t)
+  :commands (poetry-venv-toggle
+             poetry-tracking-mode)
+  :config
+  (setq poetry-tracking-strategy 'switch-buffer)
+  (add-hook 'python-mode-hook #'poetry-tracking-mode))
+
+(use-package pip-requirements
+  :defer t
+  :straight (:build t))
+
+(use-package pippel
+  :defer t
+  :straight (:build t)
+  :general
+  (dqv/major-leader-key
+   :keymaps 'python-mode-map
+   :packages 'pippel
+   "P" #'pippel-list-packages))
+
+(use-package pipenv
+  :defer t
+  :straight (:build t)
+  :commands (pipenv-activate
+             pipenv-deactivate
+             pipenv-shell
+             pipenv-open
+             pipenv-install
+             pipenv-uninstall)
+  :hook (python-mode . pipenv-mode)
+  :init (setq pipenv-with-projectile nil)
+  :general
+  (dqv/major-leader-key
+   :keymaps 'python-mode-map
+   :packages 'pipenv
+   :infix "e"
+   ""  '(:ignore t :which-key "pipenv")
+   "a" #'pipenv-activate
+   "d" #'pipenv-deactivate
+   "i" #'pipenv-install
+   "l" #'pipenv-lock
+   "o" #'pipenv-open
+   "r" #'pipenv-run
+   "s" #'pipenv-shell
+   "u" #'pipenv-uninstall))
+
+(use-package pyenv
+  :defer t
+  :straight (:build t)
+  :config
+  (add-hook 'python-mode-hook #'pyenv-track-virtualenv)
+  (add-to-list 'global-mode-string
+               '(pyenv-virtual-env-name (" venv:" pyenv-virtual-env-name " "))
+               'append))
+
+(use-package pyenv-mode
+  :defer t
+  :after python
+  :straight (:build t)
+  :if (executable-find "pyenv")
+  :commands (pyenv-mode-versions)
+  :general
+  (dqv/major-leader-key
+    :packages 'pyenv-mode
+    :keymaps 'python-mode-map
+    :infix "v"
+    "u" #'pyenv-mode-unset
+    "s" #'pyenv-mode-set))
+
+(use-package pyimport
+  :defer t
+  :straight (:build t)
+  :general
+  (dqv/major-leader-key
+    :packages 'pyimport
+    :keymaps 'python-mode-map
+    :infix "i"
+    ""  '(:ignore t :which-key "imports")
+    "i" #'pyimport-insert-missing
+    "r" #'pyimport-remove-unused))
+
+(use-package py-isort
+  :defer t
+  :straight (:build t)
+  :general
+  (dqv/major-leader-key
+   :keymaps 'python-mode-map
+   :packages 'py-isort
+   :infix "i"
+   ""  '(:ignore t :which-key "imports")
+   "s" #'py-isort-buffer
+   "R" #'py-isort-region))
+
+(use-package counsel-pydoc
+  :defer t
+  :straight (:build t))
+
+(use-package sphinx-doc
+  :defer t
+  :straight (:build t)
+  :init
+  (add-hook 'python-mode-hook #'sphinx-doc-mode)
+  :general
+  (dqv/major-leader-key
+   :keymaps 'python-mode-map
+   :packages 'sphinx-doc
+   :infix "S"
+   ""  '(:ignore t :which-key "sphinx-doc")
+   "e" #'sphinx-doc-mode
+   "d" #'sphinx-doc))
+
+(use-package cython-mode
+  :defer t
+  :straight (:build t)
+  :mode "\\.p\\(yx\\|x[di]\\)\\'"
+  :config
+  (setq cython-default-compile-format "cython -a %s")
+  :general
+  (dqv/major-leader-key
+   :keymaps 'cython-mode-map
+   :packages 'cython-mode
+   :infix "c"
+   ""  '(:ignore t :which-key "cython")
+   "c" #'cython-compile))
+
+(use-package flycheck-cython
+  :defer t
+  :straight (:build t)
+  :after cython-mode)
+
+(use-package blacken
+  :defer t
+  :straight (:build t)
+  :init
+  (add-hook 'python-mode-hook #'blacken-mode))
+
+(use-package lsp-pyright
+  :after lsp-mode
+  :defer t
+  :straight (:buidl t))
+
 (use-package magit
   :straight (:build t)
   :defer t
@@ -1513,8 +1701,7 @@ Spell Commands^^           Add To Dictionary^^              Other
     "fF" #'magit-find-file))
 
 (use-package git-messenger
-  :straight (:build t)
-  :bind (("C-x v m" . git-messenger:popup-message)))
+  :straight (:build t))
 
 (defun beautify-json ()
   (interactive)
