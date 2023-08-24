@@ -86,6 +86,7 @@
   - [[#yaml][Yaml]]
 - [[#git][Git]]
   - [[#magit][Magit]]
+  - [[#git-history-message][Git history message]]
 - [[#others][Others]]
   - [[#beauty-json][Beauty Json]]
   - [[#protobuf][Protobuf]]
@@ -2292,8 +2293,14 @@ Tide enabled interactivity with Typescript.
     "fd" #'magit-diff
     "fc" #'magit-file-checkout
     "fl" #'magit-file-dispatch
+    "h" #'git-messenger:popup-message
     "fF" #'magit-find-file))
 
+#+end_src
+** Git history message
+#+begin_src emacs-lisp
+(use-package git-messenger
+  :straight (:build t))
 #+end_src
 * Others
 ** Beauty Json

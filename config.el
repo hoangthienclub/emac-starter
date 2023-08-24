@@ -1509,7 +1509,12 @@ Spell Commands^^           Add To Dictionary^^              Other
     "fd" #'magit-diff
     "fc" #'magit-file-checkout
     "fl" #'magit-file-dispatch
+    "h" #'git-messenger:popup-message
     "fF" #'magit-find-file))
+
+(use-package git-messenger
+  :straight (:build t)
+  :bind (("C-x v m" . git-messenger:popup-message)))
 
 (defun beautify-json ()
   (interactive)
