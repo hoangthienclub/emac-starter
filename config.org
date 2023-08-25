@@ -75,6 +75,8 @@
   - [[#json][JSON]]
 - [[#custom-elisp][Custom Elisp]]
   - [[#handle-new-windows][Handle New Windows]]
+  - [[#create-new-buffer-and-split-right][Create new buffer and split right]]
+  - [[#create-new-buffer][Create new buffer]]
 - [[#general-programming-languages][General Programming Languages]]
   - [[#emacslisp][EmacsLisp]]
   - [[#docker][Docker]]
@@ -324,7 +326,7 @@ Default tab width
 
 #+end_src
 
-*** Stay Clean, Emacs!
+***v Stay Clean, Emacs!
 It also loves to litter its ~init.el~ with custom variables here and there, but the thing is: I regenerate my ~init.el~ each time I tangle this file! How can I keep Emacs from adding stuff that will be almost immediately lost? Did someone say /custom file/?
 
 #+begin_src emacs-lisp
@@ -417,6 +419,15 @@ APPEND and COMPARE-FN, see `add-to-list'."
 #+begin_src emacs-lisp
 (setq image-use-external-converter t)
 #+end_src>
+
+;; (define-key evil-normal-state-map (kbd "w") 'evil-forward-little-word-begin)
+;; (define-key evil-normal-state-map (kbd "b") 'evil-backward-little-word-begin)
+;; (define-key evil-operator-state-map (kbd "w") 'evil-forward-little-word-begin)
+;; (define-key evil-operator-state-map (kbd "b") 'evil-backward-little-word-begin)
+;; (define-key evil-visual-state-map (kbd "w") 'evil-forward-little-word-begin)
+;; (define-key evil-visual-state-map (kbd "b") 'evil-backward-little-word-begin)
+;; (define-key evil-visual-state-map (kbd "i w") 'evil-inner-little-word)
+;; (evil-global-set-key 'motion "w" 'evil-avy-goto-word-1)
 * Performance Upgrade
 ** Emacs Startup
 Tính toán garbage collections khi khởi động Emacs và thời gian loaded.
@@ -541,7 +552,7 @@ Emacs Dashboard is an extensible startup screen showing you recent files, bookma
   (setq initial-buffer-choice 'dashboard-open)
   (setq dashboard-set-heading-icons t)
   (setq dashboard-set-file-icons t)
-  (setq dashboard-banner-logo-title "Emacs Is More Than A Text Editor!")
+  (setq dashboard-banner-logo-title "thientran's Emacs")
   ;;(setq dashboard-startup-banner 'logo) ;; use standard emacs logo as banner
   (setq dashboard-startup-banner "/Users/tranthien/.emacs.d/images/dtmacs-logo.png")  ;; use custom image as banner
   (setq dashboard-center-content nil) ;; set to 't' for centered content
@@ -712,7 +723,7 @@ Evil is an extensible vi/vim layer for Emacs.  Because…let’s face it.  The V
 #+begin_src emacs-lisp
 (evil-global-set-key 'motion "j" 'evil-next-visual-line)
 (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
-;; (evil-global-set-key 'motion "w" 'evil-avy-goto-word-1)
+
 #+end_src
 
 ** Extend
@@ -1864,6 +1875,26 @@ The two functions below allow the user to not only create a new window to the ri
     (delete-window)))
 
 #+end_src
+** Create new buffer and split right
+#+begin_src emacs-lisp
+(defun create-new-buffer-and-split-vertically ()
+  "Create a new buffer and split the window vertically."
+  (interactive)
+  (let ((new-buffer (generate-new-buffer "*new-buffer*")))
+    (split-window-right)
+    (other-window 1)
+    (switch-to-buffer new-buffer)))
+
+#+end_src
+** Create new buffer
+#+begin_src emacs-lisp
+(defun create-new-buffer ()
+  "Create a new empty buffer."
+  (interactive)
+  (let ((new-buffer (generate-new-buffer "untitled")))
+    (switch-to-buffer new-buffer)))
+#+end_src
+
 * General Programming Languages
 ** EmacsLisp
 This package displays the function’s arglist or variable’s docstring in the echo area at the bottom of the frame. Quite useful indeed.

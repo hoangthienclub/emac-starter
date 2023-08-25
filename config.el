@@ -167,7 +167,7 @@ APPEND and COMPARE-FN, see `add-to-list'."
   (setq initial-buffer-choice 'dashboard-open)
   (setq dashboard-set-heading-icons t)
   (setq dashboard-set-file-icons t)
-  (setq dashboard-banner-logo-title "Emacs Is More Than A Text Editor!")
+  (setq dashboard-banner-logo-title "thientran's Emacs")
   ;;(setq dashboard-startup-banner 'logo) ;; use standard emacs logo as banner
   (setq dashboard-startup-banner "/Users/tranthien/.emacs.d/images/dtmacs-logo.png")  ;; use custom image as banner
   (setq dashboard-center-content nil) ;; set to 't' for centered content
@@ -281,7 +281,6 @@ APPEND and COMPARE-FN, see `add-to-list'."
 
 (evil-global-set-key 'motion "j" 'evil-next-visual-line)
 (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
-;; (evil-global-set-key 'motion "w" 'evil-avy-goto-word-1)
 
 (use-package evil-collection
   :after evil
@@ -1153,6 +1152,20 @@ Spell Commands^^           Add To Dictionary^^              Other
   (progn
     (kill-this-buffer)
     (delete-window)))
+
+(defun create-new-buffer-and-split-vertically ()
+  "Create a new buffer and split the window vertically."
+  (interactive)
+  (let ((new-buffer (generate-new-buffer "*new-buffer*")))
+    (split-window-right)
+    (other-window 1)
+    (switch-to-buffer new-buffer)))
+
+(defun create-new-buffer ()
+  "Create a new empty buffer."
+  (interactive)
+  (let ((new-buffer (generate-new-buffer "untitled")))
+    (switch-to-buffer new-buffer)))
 
 (use-package eldoc
   ;; :defer t
