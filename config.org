@@ -712,7 +712,7 @@ Evil is an extensible vi/vim layer for Emacs.  Because…let’s face it.  The V
 #+begin_src emacs-lisp
 (evil-global-set-key 'motion "j" 'evil-next-visual-line)
 (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
-(evil-global-set-key 'motion "w" 'evil-avy-goto-word-1)
+;; (evil-global-set-key 'motion "w" 'evil-avy-goto-word-1)
 #+end_src
 
 ** Extend
@@ -1408,6 +1408,7 @@ avy is a really convenient way of jumping around and performing actions on these
     (dqv/evil
         :pakages 'avy
         "gc" #'evil-avy-goto-char-timer
+        "gw" #'evil-avy-goto-word-1
         "gl" #'evil-avy-goto-line))
 #+end_src
 ** Yasnippet
@@ -2085,7 +2086,7 @@ javascript-mode is meh at best, while rjsx-mode (Real JSX) is much better: it su
   :interpreter "node"
   :hook (rjsx-mode . rainbow-delimiters-mode)
   :hook (rjsx-mode . lsp-deferred)
-  ;; :hook (rjsx-mode . prettier-js-mode)
+  :hook (rjsx-mode . prettier-js-mode)
   :init
   (add-to-list 'compilation-error-regexp-alist 'node)
   (add-to-list 'compilation-error-regexp-alist-alist
@@ -2155,10 +2156,10 @@ Typescript is a safer alternative to Javascript. Let’s install its major mode 
   :straight (:build t)
   :hook (typescript-mode     . rainbow-delimiters-mode)
   :hook (typescript-mode     . lsp-deferred)
-  ;; :hook (typescript-mode     . prettier-js-mode)
+  :hook (typescript-mode     . prettier-js-mode)
   :hook (typescript-tsx-mode . rainbow-delimiters-mode)
   :hook (typescript-tsx-mode . lsp-deferred)
-  ;; :hook (typescript-tsx-mode . prettier-js-mode)
+  :hook (typescript-tsx-mode . prettier-js-mode)
   :hook (typescript-tsx-mode . eglot-ensure)
   :commands typescript-tsx-mode
   :after flycheck

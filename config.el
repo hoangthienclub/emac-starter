@@ -281,7 +281,7 @@ APPEND and COMPARE-FN, see `add-to-list'."
 
 (evil-global-set-key 'motion "j" 'evil-next-visual-line)
 (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
-(evil-global-set-key 'motion "w" 'evil-avy-goto-word-1)
+;; (evil-global-set-key 'motion "w" 'evil-avy-goto-word-1)
 
 (use-package evil-collection
   :after evil
@@ -798,6 +798,7 @@ APPEND and COMPARE-FN, see `add-to-list'."
     (dqv/evil
         :pakages 'avy
         "gc" #'evil-avy-goto-char-timer
+        "gw" #'evil-avy-goto-word-1
         "gl" #'evil-avy-goto-line))
 
 (use-package yasnippet
@@ -1326,7 +1327,7 @@ Spell Commands^^           Add To Dictionary^^              Other
   :interpreter "node"
   :hook (rjsx-mode . rainbow-delimiters-mode)
   :hook (rjsx-mode . lsp-deferred)
-  ;; :hook (rjsx-mode . prettier-js-mode)
+  :hook (rjsx-mode . prettier-js-mode)
   :init
   (add-to-list 'compilation-error-regexp-alist 'node)
   (add-to-list 'compilation-error-regexp-alist-alist
