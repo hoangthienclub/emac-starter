@@ -73,6 +73,7 @@
   - [[#nginx][Nginx]]
   - [[#csv][CSV]]
   - [[#json][JSON]]
+  - [[#minimap][Minimap]]
 - [[#custom-elisp][Custom Elisp]]
   - [[#handle-new-windows][Handle New Windows]]
   - [[#create-new-buffer-and-split-right][Create new buffer and split right]]
@@ -1849,6 +1850,10 @@ We then also have an autocompletion package that adds to company the Nginx synta
     "f" #'json-pretty-print-buffer))
 #+end_src
 
+** Minimap
+#+begin_src emacs-lisp
+(use-package minimap)
+#+end_src
 * Custom Elisp
 ** Handle New Windows
 The two functions below allow the user to not only create a new window to the right or below the current window (respectively), but also to focus the new window immediately.

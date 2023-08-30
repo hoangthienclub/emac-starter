@@ -1134,6 +1134,9 @@ Spell Commands^^           Add To Dictionary^^              Other
     :keymaps 'json-mode-map
     "f" #'json-pretty-print-buffer))
 
+(use-package minimap)
+(minimap-mode 1)
+
 (defun split-window-right-and-focus ()
   "Spawn a new window right of the current one and focus it."
   (interactive)
