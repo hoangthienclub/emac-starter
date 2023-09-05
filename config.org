@@ -9,7 +9,6 @@
   - [[#repositories][Repositories]]
   - [[#adding-the-scripts-directory-to-path][Adding the scripts directory to path]]
   - [[#sourcing-the-scripts][Sourcing the scripts]]
-  - [[#quelpa-package][Quelpa package]]
 - [[#basic-configuration][Basic Configuration]]
   - [[#early-init][Early Init]]
   - [[#emacs-behavior][Emacs Behavior]]
@@ -20,6 +19,7 @@
 - [[#graphical-user-interface-tweaks][Graphical User Interface Tweaks]]
   - [[#theme][Theme]]
   - [[#font][Font]]
+  - [[#all-the-icon][All the icon]]
   - [[#cursor-evil][Cursor Evil]]
   - [[#dashboard][Dashboard]]
   - [[#doom-modeline][Doom Modeline]]
@@ -40,7 +40,6 @@
   - [[#auto-tangle-configuration-files][Auto-tangle Configuration Files]]
   - [[#enabling-table-of-contents][Enabling Table of Contents]]
   - [[#disable-electric-indent][Disable Electric Indent]]
-  - [[#org-sidebar][Org sidebar]]
 - [[#shell][Shell]]
   - [[#eshell][Eshell]]
   - [[#vterm][Vterm]]
@@ -103,10 +102,9 @@
 (setq debug-on-error t)
 ;; Initialize package sources
 (setq package-archives '(("melpa"  . "https://melpa.org/packages/")
-
                          ("gnu"    . "https://elpa.gnu.org/packages/")
-                    ("melpa-stable"   .  "https://stable.melpa.org/packages/")
-                    ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
+                         ("melpa-stable"   .  "https://stable.melpa.org/packages/")
+                         ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
 #+end_src
 ** Adding the scripts directory to path
 #+begin_src emacs-lisp
@@ -134,10 +132,6 @@ We finally come to the use-package installation. This is done like so:
 (setq use-package-always-ensure t)
 #+end_src
 
-** Quelpa package
-#+begin_src emacs-lisp
-(use-package quelpa)
-#+end_src
 * Basic Configuration
 ** Early Init
 The early init file is the file loaded before anything else in Emacs. This is where I put some options in order to disable as quickly as possible some built-in features of Emacs before they can be even loaded, speeding Emacs up a bit.
@@ -293,8 +287,8 @@ The early init file is the file loaded before anything else in Emacs. This is wh
 ;; (add-to-list 'default-frame-alist '(fullscreen . maximized))
 
 ;; ;; Set Transparency
-;; (set-frame-parameter (selected-frame) 'alpha '(100 . 100))
-;; (add-to-list 'default-frame-alist '(alpha . (100 . 100)))
+;; (set-frame-parameter (selected-frame) 'alpha '(90 . 90))
+;; (add-to-list 'default-frame-alist '(alpha . (90 . 90)))
 
 #+end_src
 ** Emacs Behavior
@@ -492,7 +486,7 @@ You may have noticed I use the Nord theme pretty much everywhere on my computer,
   :config
   ;; (load-theme 'catppuccin-latte t)
   ;; (load-theme 'catppuccin-frappe t)
-  (load-theme 'catppuccin-macchiato t)
+  (load-theme 'doom-one-light t)
   ;; (load-theme 'catppuccin-mocha t)
   ;; (load-theme 'rose-pine t)
   ;; (load-theme 'oxocarbon t)
@@ -501,8 +495,9 @@ You may have noticed I use the Nord theme pretty much everywhere on my computer,
   ;; (load-theme 'doom-tokyo-night t)
   (doom-themes-neotree-config)
   (doom-themes-org-config))
-#+end_src
+;; (load-theme 'monokai t)
 
+#+end_src
 ** Font
 *** Set The Font
 #+begin_src emacs-lisp
@@ -544,6 +539,11 @@ You may have noticed I use the Nord theme pretty much everywhere on my computer,
     (global-emojify-mode 1))
 #+end_src
 
+** All the icon
+#+begin_src emacs-lisp
+(use-package all-the-icons
+  :if (display-graphic-p))
+#+end_src
 ** Cursor Evil
 #+begin_src emacs-lisp
 
@@ -853,6 +853,7 @@ Evil is an extensible vi/vim layer for Emacs.  Because…let’s face it.  The V
 (add-to-list 'org-structure-template-alist '("go" . "src go"))
 (add-to-list 'org-structure-template-alist '("js" . "src javascript"))
 (add-to-list 'org-structure-template-alist '("ts" . "src typescript"))
+(add-to-list 'org-structure-template-alist '("yaml" . "src yaml"))
 
 #+end_src
 
@@ -885,17 +886,6 @@ Org mode source blocks have some really weird and annoying default indentation b
 (setq org-edit-src-content-indentation 0)
 #+end_src
 
-** Org sidebar
-#+begin_src emacs-lisp
-(quelpa
- '(quelpa-use-package
-   :fetcher git
-   :url "https://github.com/quelpa/quelpa-use-package.git"))
-(require 'quelpa-use-package)
-
-(use-package org-sidebar
-  :quelpa (org-sidebar :fetcher github :repo "alphapapa/org-sidebar"))
-#+end_src
 * Shell
 ** Eshell
 Eshell is a built-in shell available from Emacs which I use almost as often as fish. Some adjustments are necessary to make it fit my taste though.
@@ -1403,7 +1393,7 @@ Neotree is a file tree viewer.  When you open neotree, it jumps to the current f
   :config
   (setq neo-smart-open t
         neo-show-hidden-files t
-        neo-window-width 55
+        neo-window-width 50
         neo-window-fixed-size nil
         inhibit-compacting-font-caches t
         projectile-switch-project-action 'neotree-projectile-action)
@@ -1416,6 +1406,7 @@ Neotree is a file tree viewer.  When you open neotree, it jumps to the current f
                  (make-local-variable 'auto-hscroll-mode)
                  (setq auto-hscroll-mode nil)))))
 
+(setq neo-theme (if (display-graphic-p) 'icons 'arrow))
 #+end_src
 
 #+end_src

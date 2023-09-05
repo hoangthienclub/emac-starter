@@ -148,5 +148,5 @@
 ;; (add-to-list 'default-frame-alist '(fullscreen . maximized))
 
 ;; ;; Set Transparency
-;; (set-frame-parameter (selected-frame) 'alpha '(100 . 100))
-;; (add-to-list 'default-frame-alist '(alpha . (100 . 100)))
+;; (set-frame-parameter (selected-frame) 'alpha '(90 . 90))
+;; (add-to-list 'default-frame-alist '(alpha . (90 . 90)))

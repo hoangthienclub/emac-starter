@@ -1,10 +1,9 @@
 (setq debug-on-error t)
 ;; Initialize package sources
 (setq package-archives '(("melpa"  . "https://melpa.org/packages/")
-
                          ("gnu"    . "https://elpa.gnu.org/packages/")
-                    ("melpa-stable"   .  "https://stable.melpa.org/packages/")
-                    ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
+                         ("melpa-stable"   .  "https://stable.melpa.org/packages/")
+                         ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
 
 (add-to-list 'load-path "~/.emacs.d/scripts/")
 
@@ -20,8 +19,6 @@
 
 (straight-use-package '(use-package :build t))
 (setq use-package-always-ensure t)
-
-(use-package quelpa)
 
 (add-hook 'before-save-hook #'whitespace-cleanup)
 (server-start)
@@ -117,7 +114,7 @@ APPEND and COMPARE-FN, see `add-to-list'."
   :config
   ;; (load-theme 'catppuccin-latte t)
   ;; (load-theme 'catppuccin-frappe t)
-  (load-theme 'catppuccin-macchiato t)
+  (load-theme 'doom-one-light t)
   ;; (load-theme 'catppuccin-mocha t)
   ;; (load-theme 'rose-pine t)
   ;; (load-theme 'oxocarbon t)
@@ -126,6 +123,7 @@ APPEND and COMPARE-FN, see `add-to-list'."
   ;; (load-theme 'doom-tokyo-night t)
   (doom-themes-neotree-config)
   (doom-themes-org-config))
+;; (load-theme 'monokai t)
 
 (set-face-attribute 'default nil
                     :font "JetBrains Mono"
@@ -160,6 +158,9 @@ APPEND and COMPARE-FN, see `add-to-list'."
   (emojify-download-emojis-p t)
   :config
   (global-emojify-mode 1))
+
+(use-package all-the-icons
+  :if (display-graphic-p))
 
 (setq evil-insert-state-cursor '((bar . 2) "orange")
       evil-normal-state-cursor '(box "orange"))
@@ -378,6 +379,7 @@ APPEND and COMPARE-FN, see `add-to-list'."
 (add-to-list 'org-structure-template-alist '("go" . "src go"))
 (add-to-list 'org-structure-template-alist '("js" . "src javascript"))
 (add-to-list 'org-structure-template-alist '("ts" . "src typescript"))
+(add-to-list 'org-structure-template-alist '("yaml" . "src yaml"))
 
 ;; Automatically tangle our Emacs.org config file when we save it
 (defun efs/org-babel-tangle-config ()
@@ -395,15 +397,6 @@ APPEND and COMPARE-FN, see `add-to-list'."
 
 (electric-indent-mode -1)
 (setq org-edit-src-content-indentation 0)
-
-(quelpa
- '(quelpa-use-package
-   :fetcher git
-   :url "https://github.com/quelpa/quelpa-use-package.git"))
-(require 'quelpa-use-package)
-
-(use-package org-sidebar
-  :quelpa (org-sidebar :fetcher github :repo "alphapapa/org-sidebar"))
 
 (use-package eshell
   :defer t
@@ -781,7 +774,7 @@ APPEND and COMPARE-FN, see `add-to-list'."
   :config
   (setq neo-smart-open t
         neo-show-hidden-files t
-        neo-window-width 55
+        neo-window-width 35
         neo-window-fixed-size nil
         inhibit-compacting-font-caches t
         projectile-switch-project-action 'neotree-projectile-action)
@@ -793,6 +786,8 @@ APPEND and COMPARE-FN, see `add-to-list'."
                  (setq word-wrap nil)
                  (make-local-variable 'auto-hscroll-mode)
                  (setq auto-hscroll-mode nil)))))
+
+(setq neo-theme (if (display-graphic-p) 'icons 'arrow))
 
 (use-package avy
   :defer t
