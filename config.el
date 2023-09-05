@@ -774,7 +774,7 @@ APPEND and COMPARE-FN, see `add-to-list'."
   :config
   (setq neo-smart-open t
         neo-show-hidden-files t
-        neo-window-width 35
+        neo-window-width 50
         neo-window-fixed-size nil
         inhibit-compacting-font-caches t
         projectile-switch-project-action 'neotree-projectile-action)
@@ -897,7 +897,7 @@ APPEND and COMPARE-FN, see `add-to-list'."
          (latex-mode    . git-gutter-mode))
   :diminish
   :config
-  (setq git-gutter:update-interval 2)
+  (setq git-gutter:update-interval 0.02)
   ;; These characters are used in terminal mode
   (setq git-gutter:modified-sign "≡")
   (setq git-gutter:added-sign "≡")
@@ -905,6 +905,8 @@ APPEND and COMPARE-FN, see `add-to-list'."
   (set-face-foreground 'git-gutter:added "LightGreen")
   (set-face-foreground 'git-gutter:modified "LightGoldenrod")
   (set-face-foreground 'git-gutter:deleted "LightCoral"))
+
+  (setq git-gutter:update-interval 0.02)
 
 (use-package tsc
   :straight (:build t))

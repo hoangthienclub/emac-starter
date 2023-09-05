@@ -1565,7 +1565,7 @@ It’s nice to know which lines were modified since the last commit in a file.
          (latex-mode    . git-gutter-mode))
   :diminish
   :config
-  (setq git-gutter:update-interval 2)
+  (setq git-gutter:update-interval 0.02)
   ;; These characters are used in terminal mode
   (setq git-gutter:modified-sign "≡")
   (setq git-gutter:added-sign "≡")
@@ -1573,11 +1573,12 @@ It’s nice to know which lines were modified since the last commit in a file.
   (set-face-foreground 'git-gutter:added "LightGreen")
   (set-face-foreground 'git-gutter:modified "LightGoldenrod")
   (set-face-foreground 'git-gutter:deleted "LightCoral"))
+
+  (setq git-gutter:update-interval 0.02)
 #+end_src
 
 ** Treesister
 Tree sitter is a package for emacs based on ~tree-sitter~ which provides a very fast and flexible way of performing code-highlighting in Emacs.
-
 #+begin_src emacs-lisp
 (use-package tsc
   :straight (:build t))
