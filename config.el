@@ -1,7 +1,8 @@
 (setq debug-on-error t)
 ;; Initialize package sources
 (setq package-archives '(("melpa"  . "https://melpa.org/packages/")
-                    ("gnu"    . "https://elpa.gnu.org/packages/")
+
+                         ("gnu"    . "https://elpa.gnu.org/packages/")
                     ("melpa-stable"   .  "https://stable.melpa.org/packages/")
                     ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
 
@@ -19,6 +20,8 @@
 
 (straight-use-package '(use-package :build t))
 (setq use-package-always-ensure t)
+
+(use-package quelpa)
 
 (add-hook 'before-save-hook #'whitespace-cleanup)
 (server-start)
@@ -372,6 +375,9 @@ APPEND and COMPARE-FN, see `add-to-list'."
 (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
 (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
 (add-to-list 'org-structure-template-alist '("py" . "src python"))
+(add-to-list 'org-structure-template-alist '("go" . "src go"))
+(add-to-list 'org-structure-template-alist '("js" . "src javascript"))
+(add-to-list 'org-structure-template-alist '("ts" . "src typescript"))
 
 ;; Automatically tangle our Emacs.org config file when we save it
 (defun efs/org-babel-tangle-config ()
@@ -389,6 +395,15 @@ APPEND and COMPARE-FN, see `add-to-list'."
 
 (electric-indent-mode -1)
 (setq org-edit-src-content-indentation 0)
+
+(quelpa
+ '(quelpa-use-package
+   :fetcher git
+   :url "https://github.com/quelpa/quelpa-use-package.git"))
+(require 'quelpa-use-package)
+
+(use-package org-sidebar
+  :quelpa (org-sidebar :fetcher github :repo "alphapapa/org-sidebar"))
 
 (use-package eshell
   :defer t

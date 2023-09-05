@@ -9,6 +9,7 @@
   - [[#repositories][Repositories]]
   - [[#adding-the-scripts-directory-to-path][Adding the scripts directory to path]]
   - [[#sourcing-the-scripts][Sourcing the scripts]]
+  - [[#quelpa-package][Quelpa package]]
 - [[#basic-configuration][Basic Configuration]]
   - [[#early-init][Early Init]]
   - [[#emacs-behavior][Emacs Behavior]]
@@ -39,6 +40,7 @@
   - [[#auto-tangle-configuration-files][Auto-tangle Configuration Files]]
   - [[#enabling-table-of-contents][Enabling Table of Contents]]
   - [[#disable-electric-indent][Disable Electric Indent]]
+  - [[#org-sidebar][Org sidebar]]
 - [[#shell][Shell]]
   - [[#eshell][Eshell]]
   - [[#vterm][Vterm]]
@@ -101,7 +103,8 @@
 (setq debug-on-error t)
 ;; Initialize package sources
 (setq package-archives '(("melpa"  . "https://melpa.org/packages/")
-                    ("gnu"    . "https://elpa.gnu.org/packages/")
+
+                         ("gnu"    . "https://elpa.gnu.org/packages/")
                     ("melpa-stable"   .  "https://stable.melpa.org/packages/")
                     ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
 #+end_src
@@ -131,6 +134,10 @@ We finally come to the use-package installation. This is done like so:
 (setq use-package-always-ensure t)
 #+end_src
 
+** Quelpa package
+#+begin_src emacs-lisp
+(use-package quelpa)
+#+end_src
 * Basic Configuration
 ** Early Init
 The early init file is the file loaded before anything else in Emacs. This is where I put some options in order to disable as quickly as possible some built-in features of Emacs before they can be even loaded, speeding Emacs up a bit.
@@ -878,6 +885,17 @@ Org mode source blocks have some really weird and annoying default indentation b
 (setq org-edit-src-content-indentation 0)
 #+end_src
 
+** Org sidebar
+#+begin_src emacs-lisp
+(quelpa
+ '(quelpa-use-package
+   :fetcher git
+   :url "https://github.com/quelpa/quelpa-use-package.git"))
+(require 'quelpa-use-package)
+
+(use-package org-sidebar
+  :quelpa (org-sidebar :fetcher github :repo "alphapapa/org-sidebar"))
+#+end_src
 * Shell
 ** Eshell
 Eshell is a built-in shell available from Emacs which I use almost as often as fish. Some adjustments are necessary to make it fit my taste though.
