@@ -1574,6 +1574,7 @@ It’s nice to know which lines were modified since the last commit in a file.
   (set-face-foreground 'git-gutter:modified "LightGoldenrod")
   (set-face-foreground 'git-gutter:deleted "LightCoral"))
 
+  (global-git-gutter-mode +1)
   (setq git-gutter:update-interval 0.02)
 #+end_src
 

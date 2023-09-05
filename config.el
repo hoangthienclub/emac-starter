@@ -906,6 +906,7 @@ APPEND and COMPARE-FN, see `add-to-list'."
   (set-face-foreground 'git-gutter:modified "LightGoldenrod")
   (set-face-foreground 'git-gutter:deleted "LightCoral"))
 
+  (global-git-gutter-mode +1)
   (setq git-gutter:update-interval 0.02)
 
 (use-package tsc
