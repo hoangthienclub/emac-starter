@@ -480,6 +480,14 @@ You may have noticed I use the Nord theme pretty much everywhere on my computer,
 
 (add-to-list 'custom-theme-load-path (concat user-emacs-directory "themes/"))
 
+(use-package spacemacs-theme
+  :straight (:build t)
+  :ensure t
+)
+(use-package monokai-theme
+  :straight (:build t)
+  :ensure t
+)
 (use-package doom-themes
   :straight (:build t)
   :ensure t

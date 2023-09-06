@@ -108,6 +108,14 @@ APPEND and COMPARE-FN, see `add-to-list'."
 
 (add-to-list 'custom-theme-load-path (concat user-emacs-directory "themes/"))
 
+(use-package spacemacs-theme
+  :straight (:build t)
+  :ensure t
+)
+(use-package monokai-theme
+  :straight (:build t)
+  :ensure t
+)
 (use-package doom-themes
   :straight (:build t)
   :ensure t
