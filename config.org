@@ -494,7 +494,7 @@ You may have noticed I use the Nord theme pretty much everywhere on my computer,
   :config
   ;; (load-theme 'catppuccin-latte t)
   ;; (load-theme 'catppuccin-frappe t)
-  (load-theme 'doom-one-light t)
+  (load-theme 'monokai t)
   ;; (load-theme 'catppuccin-mocha t)
   ;; (load-theme 'rose-pine t)
   ;; (load-theme 'oxocarbon t)
